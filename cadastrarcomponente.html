@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cadastrar Componente | DRAH</title>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #b7edea;
+    color: #333;
+    min-height: 100vh;
+    padding-top: 80px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        background: #006d77;
+        z-index: 1000;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }  
+
+    .logo img {
+        height: 50px;
+        width: auto;
+        display: block;
+    }
+
+    .menu-superior {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .menu-superior a {
+        background: #00c2c7;
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-decoration: none !important;
+    }
+
+    .menu-superior a:hover {
+        background: #006d77;
+    }
+
+  /* CONTAINER FORM */
+  .container {
+    width: 100%;
+    background: #E5FFFA;
+    flex: 1;
+    padding: 30px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-card {
+    width: 90%;
+    max-width: 500px;
+    background: white;
+    border-left: 6px solid #00c2c7;
+    border-radius: 16px;
+    padding: 22px;
+    margin-top: 18px;
+  }
+
+  .form-card label {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: #006d77;
+    margin-top: 12px;
+  }
+
+  .form-card input, .form-card textarea, .form-card select {
+    width: 100%;
+    padding: 10px 14px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 2px solid #006d77;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    background-color: #E5FFFA;
+  }
+
+  textarea {
+    resize: none;
+    height: 100px;
+  }
+
+  /* imagem preview quadrada */
+  .preview {
+    width: 140px;
+    aspect-ratio: 1/1;
+    border: 2px dashed #006d77;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin: 12px auto 4px auto;
+    background: #E5FFFA;
+  }
+  .preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* botão */
+  .btn {
+    width: 100%;
+    margin-top: 20px;
+    background: #b7edea;
+    color: #006d77;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: 2px solid #006d77;
+    cursor: pointer;
+  }
+  .btn:hover {
+    background: #006d77;
+    color: #E5FFFA;
+  }
+
+</style>
+</head>
+
+<body>
+<!-- HEADER -->
+    <header>
+        <div class="logo">
+        <a href="index_adm.html"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+        </div>
+        <nav class="menu-superior">
+            <a href="paineladm.html">Painel ADM</a>
+            <a href="logout.php">Logout</a>
+        </nav>
+  </header>
+
+<div class="container">
+  <h2 style="text-align:center; color:#003F47; font-size:24px; font-weight:800;">
+    Cadastrar Novo Componente
+  </h2>
+
+  <div class="form-card form-card">
+    <form action="criarcompbd.php" method="POST" enctype="multipart/form-data">
+
+      <label>Nome do componente:</label>
+      <input type="text" name ="nome" placeholder="Ex: Arduino UNO" required/>
+
+      <label>Descrição:</label>
+      <textarea name = "descricao"placeholder="Ex: Microcontrolador para projetos escolares..." required></textarea>
+
+      <label>Quantidade:</label>
+      
+      <input type="number" name = "quantidade"placeholder="Ex: 5" min="1" required/>
+
+     <label>Categoria:</label>
+<select name="categoria" required>
+  <option value="">Selecione...</option>
+  <option value="Arduino">Arduino</option>
+  <option value="Atuadores">Atuadores</option>
+  <option value="Componentes eletrônicos">Componentes eletrônicos</option>
+  <option value="ESP32">ESP32</option>
+  <option value="Sensores">Sensores</option>
+  <option value="Shields">Shields</option>
+  <option value="Outros">Outros</option>
+</select>
+
+      <label>Foto do componente:</label>
+
+      <input type="file" name="imagem" accept="image/*" onchange="previewImagem(event)" required/>
+
+      <button type="submit" class="btn" >
+        Salvar componente
+      </button>
+
+    </form>
+  
+
+</section>
+
+
+
+</body>
+</html>
