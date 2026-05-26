@@ -119,15 +119,15 @@
     height: 100%;
   }
 
-  .component-card img {
+ .component-card img {
   width: 100%;
-  aspect-ratio: 1/1;        /* força imagem quadrada */
+  height: 180px;          /* controla o tamanho real */
+  object-fit: cover;      /* corta sem distorcer */
   border-radius: 12px;
-  object-fit: cover;
   border: 2px solid #00c2c7;
   margin-bottom: 12px;
+  display: block;
 }
-
   .component-title {
     font-size: 18px;
     font-weight: 800;
@@ -167,6 +167,15 @@
     color: #E5FFFA;
   }
 
+  /* RODAPÉ */
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #333;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
 </style>
 
 <?php
@@ -175,10 +184,10 @@ $user = "root";
 $pass = "";
 $db = "DRAH";
 
-$conn = new mysqli($host, $user, $pass, $db);
+include("config.php");
 
-if ($conn->connect_error) {
-    die("Erro: " . $conn->connect_error);
+if ($conexao->connect_error) {
+    die("Erro: " . $conexao->connect_error);
 }
 ?>
 
@@ -217,27 +226,28 @@ if ($conn->connect_error) {
  <div class="grid-quadrantes">
 
 <?php
-include("conexao.php");
-
-$busca = "";
-
-if (isset($_GET['busca'])) {
-    $busca = $_GET['busca'];
+if (isset($_GET['id'])) {
+    echo "ID: " . $_GET['id'];
 }
 
-$sql = "SELECT * FROM COMPONENTE 
-        WHERE NOME LIKE '%$busca%' 
-        OR DESCRICAO LIKE '%$busca%' 
-        OR CATEGORIA LIKE '%$busca%'";
+$busca = isset($_GET['busca']) ? $_GET['busca'] : '';
 
-$result = $conn->query($sql);
+$sql = "SELECT * FROM COMPONENTE WHERE 1=1";
+
+if (!empty($busca)) {
+    $sql .= " AND (NOME LIKE '%$busca%' 
+               OR DESCRICAO LIKE '%$busca%' 
+               OR CATEGORIA LIKE '%$busca%')";
+}
+$result = $conexao->query($sql);
 
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
 
     <div class="component-card">
-        <img src="componentes/<?php echo $row['IMAGEM']; ?>" />
+        <img src="componentes/<?php echo $row['IMAGEM']; ?>" 
+     style="width:100%; height:100%; object-fit:cover;" />
 
         <div class="component-title">
             <?php echo $row['NOME']; ?>
@@ -267,12 +277,8 @@ if ($result->num_rows > 0) {
     echo "<p>Nenhum componente encontrado.</p>";
 }
 ?>
-
 </div>
-
+<footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </div>
-
-
-
 </body>
 </html>
