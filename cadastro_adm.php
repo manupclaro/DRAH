@@ -74,6 +74,16 @@
     a {
       text-decoration: none;
     }
+
+    /* RODAPÉ */
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
   </style>
 </head>
 
@@ -102,10 +112,11 @@
         <label for="codigoadm">Código de Validação (Administrador)</label>
         <input type="text" id="codigoadm" name="codigoadm" required>
 
+        <input type="hidden" name="tipo_cadastro" value="adm">
         <button type="submit" class="btn">Finalizar Cadastro</button>
     </form>
     <p>Já tem uma conta? <a href="login.php"><b>Faça o Login</b></a></p>
-    </div>
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
 </body>
 </html>
