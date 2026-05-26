@@ -1,36 +1,69 @@
 <?php
+include "config.php";
+
 $nome = $_POST['nome'];
 $email = $_POST['email'];
 $telefone = $_POST['telefone'];
 $cpf = $_POST['cpf'];
 $senha = $_POST['senha'];
 $codigoadm = $_POST['codigoadm'];
-    if((!$nome) || (!$email) || (!$telefone) || (!$cpf) || (!$senha)){
-        echo " Por favor, todos campos devem ser preenchidos! <br/><br/>";
-        include "cadastro.php";
-        exit;
-    }
 
-    $senha_encriptada = password_hash($senha, PASSWORD_DEFAULT);
+$tipo = 0; // usuário padrão
+$erro = "";
 
-	include "config.php";
+if (empty($nome) || empty($email) || empty($telefone) || empty($cpf) || empty($senha)) {
+    die("Preencha todos os campos!");
+}
 
-    $sql = "INSERT INTO `usuario` (`nome`, `email`, `telefone`, `cpf`, `senha`)
-    VALUES ('$nome', '$email', '$telefone', '$cpf', '$senha_encriptada')";
+if ($_POST['tipo_cadastro'] === "adm") {
+    // validação código admin (ANTES de inserir)
+    if (!empty($codigoadm)) {
 
-    if (!mysqli_query($conexao, $sql)) {
-        die("Erro ao inserir: " . mysqli_error($conexao));
-    }
+        $stmt = $conexao->prepare("SELECT * FROM CODIGO_ADM WHERE CODIGO = ? AND USADO = 0");
+        $stmt->bind_param("s", $codigoadm);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    if(!empty($codigoadm)){
-    $sqlAdm = "INSERT INTO autenticadm (codigoadm)
-    VALUES ('$codigoadm')";
+        if ($result->num_rows > 0) {
+            $tipo = 1; // vira admin
 
-        if (!mysqli_query($conexao, $sqlAdm)) {
-            die("Erro ao inserir adm: " . mysqli_error($conexao));
+            // marcar código como usado
+            $stmtUpdate = $conexao->prepare("UPDATE CODIGO_ADM SET USADO = 1 WHERE CODIGO = ?");
+            $stmtUpdate->bind_param("s", $codigoadm);
+            $stmtUpdate->execute();
+        } else {
+            $erro = "Código de administrador inválido ou já utilizado!";
+            if (!empty($erro)) {
+                include "cadastro_adm.php";
+                exit;
+            }
         }
     }
+}
 
+$senha_encriptada = password_hash($senha, PASSWORD_DEFAULT);
+
+$stmt = $conexao->prepare("INSERT INTO usuario (nome, email, telefone, cpf, senha, tipousua) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssi", $nome, $email, $telefone, $cpf, $senha_encriptada, $tipo);
+
+if ($stmt->execute()) {
     header("Location: login.php");
     exit;
+} else {
+
+    switch ($conexao->errno) {
+        case 1062:
+            $erro = "CPF ou e-mail já cadastrado!";
+            break;
+        default:
+            $erro = "Erro inesperado no cadastro!";
+    }
+
+    if ($_POST['tipo_cadastro'] === "adm"){
+        include "cadastro_adm.php";
+    }else{
+        include "cadastro.php";
+    }
+    exit;
+}
 ?>
