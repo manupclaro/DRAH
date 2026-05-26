@@ -1,3 +1,11 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
+    header("Location: login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -377,13 +385,31 @@
         z-index: 10;
         cursor: pointer;
     }
+      .comp-image-horizontal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+/* RODAPÉ */
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        position: absolute;
+        margin-left: 45%;
+    }
 </style>
 </head>
 <body>
     <!-- HEADER -->
     <header>
         <div class="logo">
-            <a href="#"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+            <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
         </div>
         <nav class="menu-superior">
             <a href="perfil.php">Perfil</a> 
@@ -400,81 +426,103 @@
         <aside class="sidebar">
             <h2>📦 Categorias</h2>
             <ul class="category-list">
-                <li><a href="#">Arduino</a></li>
-                <li><a href="#">Atuadores</a></li>
-                <li><a href="#">Componentes eletrônicos</a></li>
-                <li><a href="#">ESP32</a></li>
-                <li><a href="#">Sensores</a></li>
-                <li><a href="#">Shields</a></li>
-                <li><a href="#">Outros</a></li>
-            </ul>
+    <li><a href="?categoria=Arduino">Arduino</a></li>
+    <li><a href="?categoria=Atuadores">Atuadores</a></li>
+    <li><a href="?categoria=Componentes eletrônicos">Componentes eletrônicos</a></li>
+    <li><a href="?categoria=ESP32">ESP32</a></li>
+    <li><a href="?categoria=Sensores">Sensores</a></li>
+    <li><a href="?categoria=Shields">Shields</a></li>
+    <li><a href="?categoria=Outros">Outros</a></li>
+</ul>
         </aside>
 
         <!-- CONTEÚDO -->
         <main class="content">
-            <!-- BARRA DE PESQUISA -->
-            <div class="search-container">
-                <div class="search-box">
-                    <input type="text" placeholder="🔍 Buscar componentes, equipamentos...">
-                    <button>Pesquisar</button>
-                </div>
-            </div>
-
-            <!-- GRID DE PRODUTOS -->
-            <div class="comp-grid"> 
-                
-                <!-- CARD LATERAL 1 -->
-                <div class="comp-card horizontal-card">
-                    <span class="comp-badge">+</span>
-                    <!-- ADICIONAR junto desse span ^^ onclick="location.href='naoseicomoadicionanocarrinho' -->
-
-                    <!-- IMAGEM LATERAL -->
-                    <div class="comp-image-horizontal">
-                        <img src="componentes/ledverde.png" 
-                        alt="Imagem do LED"
-                        style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-
-                    <!-- CONTEÚDO -->
-                    <div class="comp-content-horizontal">
-                        <span class="comp-category">Eletrônicos</span>
-                        <div class="comp-title">LED - Verde</div>
-                        <div class="comp-description">
-                            Led verde.
-                        </div>
-                        <div class="comp-meta">
-                            <div>Estoque: <b>32</b></div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- CARD LATERAL 2 -->
-                <div class="comp-card horizontal-card">
-                    <span class="comp-badge">+</span>
-
-                    <!-- IMAGEM LATERAL -->
-                    <div class="comp-image-horizontal">
-                        <img src="componentes/ledverde.png" 
-                        alt="Imagem do LED"
-                        style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-
-                    <!-- CONTEÚDO -->
-                    <div class="comp-content-horizontal">
-                        <span class="comp-category">Eletrônicos</span>
-                        <div class="comp-title">LED - Verde</div>
-                        <div class="comp-description">
-                            Led verde.
-                        </div>
-                        <div class="comp-meta">
-                            <div>Estoque: <b>32</b></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+             <!-- PESQUISA -->
+   <div class="search-container">
+    <form method="GET" class="search-box">
+        <input 
+            type="text" 
+            name="busca" 
+            placeholder="Buscar componentes..." 
+            value="<?php echo isset($_GET['busca']) ? htmlspecialchars($_GET['busca']) : ''; ?>"
+        >
+        <button type="submit">Pesquisar</button>
+    </form>
 </div>
+
+  <!-- GRID -->
+<div class="comp-grid">
+
+<?php
+include("config.php");
+
+$busca = isset($_GET['busca']) ? $_GET['busca'] : '';
+$categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
+
+
+
+
+if (isset($_GET['busca'])) {
+    $busca = $_GET['busca'];
+}
+$sql = "SELECT * FROM COMPONENTE WHERE 1=1";
+
+if (!empty($busca)) {
+    $sql .= " AND (NOME LIKE '%$busca%' OR DESCRICAO LIKE '%$busca%')";
+}
+
+if (!empty($categoria)) {
+    $sql .= " AND CATEGORIA = '$categoria'";
+}
+
+$result = $conexao->query($sql);
+
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+?>
+
+  <div class="comp-card horizontal-card">
+    
+    <span class="comp-badge">+</span>
+
+    <!-- IMAGEM PADRONIZADA -->
+    <div class="comp-image-horizontal">
+        <img src="componentes/<?php echo $row['IMAGEM']; ?>" 
+             alt="<?php echo $row['NOME']; ?>">
+    </div>
+
+    <!-- CONTEÚDO -->
+    <div class="comp-content-horizontal">
+        <span class="comp-category">
+            <?php echo $row['CATEGORIA']; ?>
+        </span>
+
+        <div class="comp-title">
+            <?php echo $row['NOME']; ?>
+        </div>
+
+        <div class="comp-description">
+            <?php echo $row['DESCRICAO']; ?>
+        </div>
+
+        <div class="comp-meta">
+            <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
+        </div>
+    </div>
+
+</div>
+
+<?php
+    }
+} else {
+    echo "<p>Nenhum componente encontrado.</p>";
+}
+?>
+</div>
+</div>
+</div>
+  <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </body>
 </html>
