@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Se houver erro, volta para o HTML com a mensagem na URL
     if (!empty($erro)) {
-        header("Location: LoginDRAH.php?erro=" . urlencode($erro));
+        header("Location: login.php?erro=" . urlencode($erro));
         exit();
     }
 }
@@ -178,6 +178,16 @@ $conn->close();
       transition: color .2s;
     }
     .criarConta a:hover { color: #ed5721; }
+
+    /* RODAPÉ */
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #333;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
   </style> 
 </head>
 
@@ -195,7 +205,7 @@ $conn->close();
     <?php endif; ?>
 
     <!-- Formulário de login -->
-    <form method="POST" action="LoginDRAH.php">
+    <form method="POST" action="login.php">
       <input
         type="text"
         name="usuario"
