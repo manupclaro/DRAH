@@ -74,9 +74,18 @@
     a {
       text-decoration: none;
     }
+
+    /* RODAPÉ */
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
   </style>
 </head>
-
 <body>
   <div class="container">
     <div class="logo">
@@ -99,9 +108,16 @@
         <label for="senha">Senha</label>
         <input type="password" id="senha" name="senha" required>
 
+        <input type="hidden" name="tipo_cadastro" value="padrao">
         <button type="submit" class="btn">Finalizar Cadastro</button>
     </form>
+    <?php if (!empty($erro)) { ?>
+      <div class="erro">
+        <?= $erro ?>
+      </div>
+    <?php } ?>
     <p>Já tem uma conta? <a href="login.php"><b>Faça o Login</b></a></p>
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
 </body>
 </html>
