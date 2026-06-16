@@ -11,7 +11,7 @@
     padding: 0;
     box-sizing: border-box;
   }
-  
+
   body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,51 +24,42 @@
   }
 
   /* HEADER */
-    header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 32px;
-        background: #006d77;
-        z-index: 1000;
-    }
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    background: #006d77;
+    z-index: 1000;
+  }
 
-    .logo {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }  
+  .logo img {
+    height: 50px;
+  }
 
-    .logo img {
-        height: 50px;
-        width: auto;
-        display: block;
-    }
+  .menu-superior {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
 
-    .menu-superior {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
+  .menu-superior a {
+    background: #00c2c7;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-decoration: none;
+  }
 
-    .menu-superior a {
-        background: #00c2c7;
-        color: white;
-        border: none;
-        padding: 10px 22px;
-        border-radius: 20px;
-        font-weight: 600;
-        text-decoration: none !important;
-    }
-
-    .menu-superior a:hover {
-        background: #006d77;
-    }
+  .menu-superior a:hover {
+    background: #006d77;
+  }
 
   /* CONTAINER */
   .container {
@@ -81,23 +72,23 @@
     align-items: center;
   }
 
-  /* BARRA PESQUISA */
+  /* SEARCH */
   .search-bar {
-  margin-top: 22px;
-  display: flex;
-  justify-content: center;
-}
+    margin-top: 22px;
+    display: flex;
+    justify-content: center;
+  }
 
-.search-bar input {
-  width: 100%;
-  max-width: 420px;
-  padding: 10px 14px;
-  border-radius: 30px;
-  border: 2px solid #006d77;
-  font-size: 16px;
-}
+  .search-bar input {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 14px;
+    border-radius: 30px;
+    border: 2px solid #006d77;
+    font-size: 16px;
+  }
 
-  /* GRID COMPONENTES */
+  /* GRID */
   .grid-quadrantes {
     margin-top: 25px;
     display: grid;
@@ -105,9 +96,10 @@
     gap: 22px;
     width: 95%;
     max-width: 900px;
+    align-items: start;
   }
 
-  /* CARD INDIVIDUAL */
+  /* CARD */
   .component-card {
     background: white;
     border-left: 6px solid #006d77;
@@ -116,18 +108,24 @@
 
     display: flex;
     flex-direction: column;
-    height: 100%;
+
+    overflow: hidden;
   }
 
- .component-card img {
-  width: 100%;
-  height: 180px;          /* controla o tamanho real */
-  object-fit: cover;      /* corta sem distorcer */
-  border-radius: 12px;
-  border: 2px solid #00c2c7;
-  margin-bottom: 12px;
-  display: block;
-}
+  /* IMAGEM */
+  .component-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    object-position: center;
+
+    display: block;
+
+    border-radius: 12px;
+    border: 2px solid #00c2c7;
+    margin-bottom: 12px;
+  }
+
   .component-title {
     font-size: 18px;
     font-weight: 800;
@@ -148,7 +146,6 @@
     color: #006d77;
   }
 
-  /* BOTÃO ALTERAR */
   .btn {
     width: 100%;
     margin-top: auto;
@@ -164,26 +161,17 @@
 
   .btn:hover {
     background: #006d77;
-    color: #E5FFFA;
+    color: white;
   }
 
-  /* RODAPÉ */
-    footer {
-        bottom: 15px;
-        font-size: 12px;
-        color: #333;
-        text-align: center;
-        margin-top: 25px;
-        margin-bottom: 25px;
-    }
+  footer {
+    font-size: 12px;
+    text-align: center;
+    margin: 25px 0;
+  }
 </style>
 
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "DRAH";
-
 include("config.php");
 
 if ($conexao->connect_error) {
@@ -194,82 +182,78 @@ if ($conexao->connect_error) {
 </head>
 
 <body>
-  <!-- HEADER -->
-    <header>
-        <div class="logo">
-        <a href="index_adm.html"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
-        </div>
-        <nav class="menu-superior">
-            <a href="paineladm.html">Painel ADM</a>
-            <a href="logout.php">Logout</a>
-        </nav>
-  </header>
 
-<div class="container">
-  <h2 style="text-align:center; color:#003F47; font-size:24px; font-weight:800;">Componentes Disponíveis</h2>
-
-  <!-- BOTÃO CADASTRO -->
-  <div class="botoes" style="margin-top:18px;">
-    <a href="cadastrarcomponente.html"
-      style="background:#006d77; color:white; padding:10px 22px; border-radius:30px; font-size:16px; text-decoration:none; font-weight:700">
-      Criar novo componente
+<header>
+  <div class="logo">
+    <a href="index_adm.html">
+      <img src="imagens/logo_branco.png">
     </a>
   </div>
 
-  <!-- PESQUISA -->
-<div class="search-bar" style="margin-top:22px;">
-  <form method="GET">
-    <input type="text" name="busca" placeholder="Pesquisar componentes..." />
-  </form>
-</div>
-  <!-- GRID -->
- <div class="grid-quadrantes">
+  <nav class="menu-superior">
+    <a href="paineladm.html">Painel ADM</a>
+    <a href="logout.php">Logout</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <h2>Componentes Disponíveis</h2>
+
+  <a href="cadastrarcomponente.html"
+     style="margin-top:15px; background:#006d77; color:white; padding:10px 22px; border-radius:30px; text-decoration:none;">
+    Criar novo componente
+  </a>
+
+  <div class="search-bar">
+    <form method="GET">
+      <input type="text" name="busca" placeholder="Pesquisar componentes...">
+    </form>
+  </div>
+
+  <div class="grid-quadrantes">
 
 <?php
-if (isset($_GET['id'])) {
-    echo "ID: " . $_GET['id'];
-}
-
-$busca = isset($_GET['busca']) ? $_GET['busca'] : '';
+$busca = $_GET['busca'] ?? '';
 
 $sql = "SELECT * FROM COMPONENTE WHERE 1=1";
 
 if (!empty($busca)) {
-    $sql .= " AND (NOME LIKE '%$busca%' 
-               OR DESCRICAO LIKE '%$busca%' 
-               OR CATEGORIA LIKE '%$busca%')";
+    $sql .= " AND (NOME LIKE '%$busca%' OR DESCRICAO LIKE '%$busca%' OR CATEGORIA LIKE '%$busca%')";
 }
+
 $result = $conexao->query($sql);
 
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
 
-    <div class="component-card">
-        <img src="componentes/<?php echo $row['IMAGEM']; ?>" 
-     style="width:100%; height:100%; object-fit:cover;" />
+<div class="component-card">
 
-        <div class="component-title">
-            <?php echo $row['NOME']; ?>
-        </div>
+  <img src="componentes/<?php echo $row['IMAGEM']; ?>" alt="">
 
-        <div class="component-qty">
-            Quantidade: <?php echo $row['QUANTIDADE']; ?>
-        </div>
+  <div class="component-title">
+    <?php echo $row['NOME']; ?>
+  </div>
 
-        <div class="component-desc">
-            <?php echo $row['DESCRICAO']; ?>
-        </div>
+  <div class="component-qty">
+    Quantidade: <?php echo $row['QUANTIDADE']; ?>
+  </div>
 
-        <div style="font-size:12px; color:#666;">
-            Categoria: <?php echo $row['CATEGORIA']; ?>
-        </div>
+  <div class="component-desc">
+    <?php echo $row['DESCRICAO']; ?>
+  </div>
 
-        <button class="btn"
-        onclick="window.location.href='editarcomponente.php?id=<?php echo $row['IDCOMP']; ?>'">
-        Alterar componente
-        </button>
-    </div>
+  <div style="font-size:12px; color:#666;">
+    Categoria: <?php echo $row['CATEGORIA']; ?>
+  </div>
+
+  <button class="btn"
+    onclick="window.location.href='editarcomponente.php?id=<?php echo $row['IDCOMP']; ?>'">
+    Alterar componente
+  </button>
+
+</div>
 
 <?php
     }
@@ -277,8 +261,14 @@ if ($result->num_rows > 0) {
     echo "<p>Nenhum componente encontrado.</p>";
 }
 ?>
+
+  </div>
+
+  <footer>
+    Copyright © 2026 - DRAH
+  </footer>
+
 </div>
-<footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
-</div>
+
 </body>
 </html>
