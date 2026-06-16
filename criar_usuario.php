@@ -1,12 +1,13 @@
 <?php
 include "config.php";
 
-$nome = $_POST['nome'];
-$email = $_POST['email'];
-$telefone = $_POST['telefone'];
-$cpf = $_POST['cpf'];
-$senha = $_POST['senha'];
-$codigoadm = $_POST['codigoadm'];
+$nome     = trim($_POST['nome']     ?? "");
+$email    = trim($_POST['email']    ?? "");
+$cpf      = preg_replace('/\D/', '', $_POST['cpf']      ?? ""); // salva só números pq esse caralho tava dando errado
+$telefone = preg_replace('/\D/', '', $_POST['telefone']  ?? ""); // salva só números
+$senha    = $_POST['senha']    ?? "";
+$codigoadm = trim($_POST['codigoadm'] ?? "");
+$tipo_cadastro = $_POST['tipo_cadastro'] ?? "padrao";
 
 $tipo = 0; // usuário padrão
 $erro = "";
