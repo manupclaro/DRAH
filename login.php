@@ -3,9 +3,16 @@ session_start();
 
 // Se já estiver logado, redireciona para a página principal
 if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
-    header("Location: index_padrao.php");
+
+    if ($_SESSION['tipo'] == 1) {
+        header("Location: index_adm.php");
+    } else {
+        header("Location: index_padrao.php");
+    }
+
     exit();
 }
+
 
 // ─── Configuração do banco ───────────────────────────────────────────────────
 $servername = "localhost";
@@ -15,6 +22,7 @@ $dbname     = "DRAH";
 
 // Criar conexão
 $conn = new mysqli($servername, $username, $password, $dbname);
+$conn->set_charset("utf8mb4");
 
 // Verificar conexão
 if ($conn->connect_error) {
@@ -25,7 +33,7 @@ $erro = "";
 
 // ─── PROCESSAR LOGIN (só quando vier POST) ───────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $cpf   = trim($_POST["usuario"] ?? ""); // o campo HTML chama "usuario" mas guarda CPF
+    $cpf = preg_replace('/\D/', '', trim($_POST["usuario"] ?? ""));
     $senha = $_POST["senha"] ?? "";
 
     if ($cpf === "" || $senha === "") {
@@ -34,44 +42,71 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Busca o usuário pelo CPF na tabela USUARIO
         $query = "SELECT IDUSER, NOME, SENHA, TIPOUSUA FROM USUARIO WHERE CPF = ? LIMIT 1";
         $stmt  = $conn->prepare($query);
-        $stmt->bind_param("s", $cpf);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 1) {
-            $dados = $result->fetch_assoc();
-
-            // Verificar senha com hash bcrypt (password_hash / password_verify)
-            if (password_verify($senha, $dados["SENHA"])) {
-
-                // ── Sessões ──────────────────────────────────────────────────
-                $_SESSION["logado"]      = true;
-                $_SESSION["usuario_id"]  = $dados["IDUSER"];
-                $_SESSION["usuario"]     = $dados["NOME"];
-                $_SESSION["tipo"]        = $dados["TIPOUSUA"]; // útil para controle de acesso
-
-                // Redireciona admin (TIPOUSUA = 1) ou usuário comum separadamente, se quiser:
-                // if ($dados["TIPOUSUA"] == 1) { header("Location: admin.php"); exit(); }
-
-                header("Location: index_padrao.php"); // página central DRAH
-                exit();
-
-            } else {
-                $erro = "Senha incorreta.";
-            }
-        } else {
-            $erro = "CPF não encontrado.";
-        }
-
-        $stmt->close();
     }
+        // Verifica se o prepare() funcionou
+        if (!$stmt) {
+            $erro = "Erro interno ao preparar consulta: " . $conn->error;
+        } else {
+            $stmt->bind_param("s", $cpf);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        }
+            if ($result->num_rows === 1) {
+                $dados = $result->fetch_assoc();
+
+                // Verifica se a senha no banco usa password_hash (começa com $2y$)
+                // Se não usar, compara direto (menos seguro - ideal migrar para hash)
+                $senhaValida = false;
+
+                if (str_starts_with($dados["SENHA"], '$2y$') || str_starts_with($dados["SENHA"], '$2a$')) {
+                    // Senha armazenada com bcrypt (password_hash)
+                    $senhaValida = password_verify($senha, $dados["SENHA"]);
+                } else {
+                    // Senha armazenada em texto puro ou outro hash — compara direto
+                    // ATENÇÃO: migre para password_hash() assim que possível!
+                    $senhaValida = ($senha === $dados["SENHA"]) || ($dados["SENHA"] === md5($senha));
+                }
+
+                if ($senhaValida) {
+                    // ── Sessões ──────────────────────────────────────────────
+                    $_SESSION["logado"]      = true;
+                    $_SESSION["usuario_id"]  = $dados["IDUSER"];
+                    $_SESSION["usuario"]     = $dados["NOME"];
+                    $_SESSION["tipo"]        = $dados["TIPOUSUA"];
+
+                    $stmt->close();
+                    $conn->close();
+
+                if ($dados['tipousua'] == 1) {
+    header("Location: index_adm.php");
+    exit;if ($dados['TIPOUSUA'] == 1) {
+    header("Location: index_adm.php");
+    exit();
+} else {
+    header("Location: index_padrao.php");
+    exit();
+}
+
+                } else {
+                    $erro = "Senha incorreta.";
+                }
+            } else {
+                $erro = "CPF não encontrado.";
+            }
+
+            $stmt->close();
+      
+    }
+  }
+
+    $conn->close();
 
     // Se houver erro, volta para o HTML com a mensagem na URL
     if (!empty($erro)) {
         header("Location: login.php?erro=" . urlencode($erro));
         exit();
     }
-}
+
 
 $conn->close();
 ?>
@@ -83,7 +118,6 @@ $conn->close();
   <title>Login – DRAH</title>
 
   <style>
-    /* ── Reset & base ──────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -95,7 +129,6 @@ $conn->close();
       align-items: center;
     }
 
-    /* ── Card ──────────────────────────────────────────────────── */
     .container {
       width: 90%;
       max-width: 420px;
@@ -105,7 +138,6 @@ $conn->close();
       box-shadow: 0 4px 16px rgba(117, 31, 0, .25);
     }
 
-    /* ── Logo ──────────────────────────────────────────────────── */
     .logo {
       display: flex;
       justify-content: center;
@@ -117,7 +149,6 @@ $conn->close();
       object-fit: contain;
     }
 
-    /* ── Mensagem de erro ──────────────────────────────────────── */
     .erro {
       background: #ffe5e5;
       border: 1px solid #ff4d4d;
@@ -129,7 +160,6 @@ $conn->close();
       text-align: center;
     }
 
-    /* ── Inputs ────────────────────────────────────────────────── */
     input {
       display: block;
       width: 100%;
@@ -148,7 +178,6 @@ $conn->close();
       background: #fff;
     }
 
-    /* ── Botão ─────────────────────────────────────────────────── */
     button {
       display: block;
       width: 100%;
@@ -165,7 +194,6 @@ $conn->close();
     }
     button:hover { background: #ed5721; }
 
-    /* ── Link criar conta ──────────────────────────────────────── */
     .criarConta {
       text-align: center;
       margin-top: 20px;
@@ -178,33 +206,20 @@ $conn->close();
       transition: color .2s;
     }
     .criarConta a:hover { color: #ed5721; }
-
-    /* RODAPÉ */
-    footer {
-        bottom: 15px;
-        font-size: 12px;
-        color: #333;
-        text-align: center;
-        margin-top: 25px;
-        margin-bottom: 25px;
-    }
-  </style> 
+  </style>
 </head>
 
 <body>
   <div class="container">
 
-    <!-- Logo -->
     <div class="logo">
       <img src="imagens/logo_laranja.png" alt="Logo DRAH" />
     </div>
 
-    <!-- Mensagem de erro vinda da URL (?erro=...) -->
     <?php if (!empty($_GET['erro'])): ?>
       <div class="erro">⚠️ <?= htmlspecialchars($_GET['erro']) ?></div>
     <?php endif; ?>
 
-    <!-- Formulário de login -->
     <form method="POST" action="login.php">
       <input
         type="text"
@@ -222,7 +237,6 @@ $conn->close();
       <button type="submit">Entrar</button>
     </form>
 
-    <!-- Link para cadastro -->
     <div class="criarConta">
       <a href="cadastro_tipo.html">Criar conta</a>
     </div>
