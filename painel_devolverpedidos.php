@@ -135,7 +135,7 @@ $result = mysqli_query($conexao, $sql);
     position: relative;
   }
   .pedido-card:hover {
-    border: 3px solid #00c2c7;
+    border: 2px solid #00c2c7;
     border-left: 6px solid #006d77;
   }
 
@@ -148,10 +148,10 @@ $result = mysqli_query($conexao, $sql);
     margin-bottom: 10px;
   }
 
-  .dentro {background:#b7f5c2; color:#0a4d1e;}
-  .atrasado {background:#ffbaba; color:#5a0000;}
+  .dentro {background: #b7f5c2; color: green;}
+  .atrasado {background: #ffbaba; color: red;}
 
-  .label {font-weight:700; color:#006d77;}
+  .label {font-weight:700; color: #006d77;}
   p {font-size:15px; color:#333; margin:5px 0;}
 
   .form-box {
@@ -196,7 +196,6 @@ $result = mysqli_query($conexao, $sql);
         text-align: center;
         margin-top: 25px;
         margin-bottom: 25px;
-
     }
 
     .sem-pedidos{
@@ -207,7 +206,6 @@ $result = mysqli_query($conexao, $sql);
     padding:40px 30px;
     border-radius:20px;
     text-align:center;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
 .sem-pedidos h3{
@@ -453,9 +451,6 @@ function filtrarPedidos(){
 
     });
 }
-
 </script>
-
-
 </body>
 </html>
