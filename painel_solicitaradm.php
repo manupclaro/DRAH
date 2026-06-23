@@ -1,8 +1,13 @@
+<?php
+include "listar_adm.php";
+?>
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 <title>Solicitar Administrador | DRAH</title>
 
 <style>
@@ -215,66 +220,85 @@
   </header>
 
 <div class="container">
-  <h2>Solicitações de Acesso</h2>
+  <h2>Códigos de acesso</h2>
 
   <!-- PESQUISA -->
   <div class="search-bar" style="margin-top:18px;">
     <input type="text" placeholder="🔎 Pesquisar usuários...">
   </div>
 
-  <!-- CAMPO DE SENHA + NÚMERO + BOTÃO -->
 <div class="senha-container" style="
-    margin-top: 20px; 
-    display: flex; 
-    align-items: center; 
-    gap: 12px;
+margin-top:20px;
+display:flex;
+align-items:center;
+gap:12px;
 ">
-    <!-- Barrinha -->
-    <input type="text" class="senha" placeholder="Senha...">
 
-    <!-- Número de 5 dígitos -->
-    <span class="senha-num">codigo</span>
+    <span class="senha-num" id="codigoAtual">
+        Nenhum código gerado
+    </span>
 
-    <!-- Botão para trocar senha -->
-    <button class="btn-senha">
-      Salvar senha de acesso
+    <span id="statusCodigo" style="
+    color:#006d77;
+    font-weight:bold;
+    ">
+        Disponível
+    </span>
+
+    <button class="btn-senha" onclick="gerarCodigo()">
+        Gerar Novo Código
     </button>
+
 </div>
 
 
   <!-- LISTAGEM DE USUÁRIOS -->
-  <div class="users-list">
+ <div class="users-list">
 
-    <!-- CARD MODELO -->
-    <div class="user-card">
-      <div class="user-info">
-        <span><strong>Nome:</strong> Adão E. Eva</span>
-        <span><strong>CPF:</strong> 000.000.000-01</span>
-        <span><strong>Email:</strong> adaoeeva@email.com</span>
-        <span><strong>Telefone:</strong> (10) 10000-1000</span>
-      </div>
+<?php while($adm = $resultado->fetch_assoc()) { ?>
 
-      <div class="btn-group">
-        <button class="btn-ok">✓ Aceitar</button>
-        <button class="btn-no">✕ Rejeitar</button>
-      </div>
+<div class="user-card">
+
+    <div class="user-info">
+        <span><strong>Nome:</strong> <?= htmlspecialchars($adm['NOME']) ?></span>
+
+        <span><strong>CPF:</strong> <?= htmlspecialchars($adm['CPF']) ?></span>
+
+        <span><strong>Email:</strong> <?= htmlspecialchars($adm['EMAIL']) ?></span>
+
+        <span><strong>Telefone:</strong> <?= htmlspecialchars($adm['TELEFONE']) ?></span>
+
+       
     </div>
 
-    <div class="user-card">
-      <div class="user-info">
-        <span><strong>Nome:</strong> Matilda Cavallieri</span>
-        <span><strong>CPF:</strong> 987.654.321-11</span>
-        <span><strong>Email:</strong> princesinhadoonedirection@email.com</span>
-        <span><strong>Telefone:</strong> (51) 99876-1111</span>
-      </div>
+</div>
 
-      <div class="btn-group">
-        <button class="btn-ok">✓ Aceitar</button>
-        <button class="btn-no">✕ Rejeitar</button>
-      </div>
-    </div>
-  </div>
+<?php } ?>
+
+</div>
+  
   <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </div>
+
+<script>
+function gerarCodigo() {
+
+    fetch('gerar_codigo.php')
+    .then(response => response.text())
+    .then(codigo => {
+
+        document.getElementById('codigoAtual').innerText = codigo;
+        document.getElementById('statusCodigo').innerText = 'Disponível';
+
+    })
+    .catch(() => {
+
+        alert('Erro ao gerar código.');
+
+    });
+
+}
+</script>
+
 </body>
 </html>
