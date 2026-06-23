@@ -1,3 +1,19 @@
+<?php
+$conn = new mysqli(
+    "localhost",
+    "root",
+    "",
+    "DRAH"
+);
+
+if ($conn->connect_error) {
+    die("Erro: " . $conn->connect_error);
+}
+
+$sql = "SELECT * FROM COMPONENTE";
+
+$result = $conn->query($sql);
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -217,96 +233,42 @@
             </div>
 
             <!-- GRID DE PRODUTOS -->
-            <div class="products-grid" id="productsGrid">
-                
-                <!-- CARD LATERAL 1 -->
-                <div class="product-card horizontal-card" data-id="1">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\ledverde (1).png"
-                             alt="Imagem do LED"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Eletrônicos</span>
-                        <div class="product-title">LED - Verde</div>
-                        <div class="product-description">Led verde.</div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>2</b></div>
-                        </div>
-                    </div>
-                </div>
+            <form action="novopedido.php" method="POST">
+            <div class="products-grid">
+            <?php while($componente = $result->fetch_assoc()) { ?>
+                <div class="product-card horizontal-card"
+                    data-id="<?= $componente['IDCOMP'] ?>">
 
-                <!-- CARD LATERAL 2 -->
-                <div class="product-card horizontal-card" data-id="2">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\cabosata (1).jpeg" 
-                             alt="Imagem do Cabo SATA"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Cabos</span>
-                        <div class="product-title">Cabo Sata Serial Ata, Sata 3gb/s Cor Vermelho</div>
-                        <div class="product-description">Cabo sata.</div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>1</b></div>
-                        </div>
-                    </div>
-                </div>
+                    <input
+                        type="checkbox"
+                        class="product-checkbox"
+                        name="componentes[]"
+                        value="<?= $componente['IDCOMP'] ?>"
+                        onchange="toggleSelection(this)">
 
-                <!-- CARD LATERAL 3 -->
-                <div class="product-card horizontal-card" data-id="3">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
                     <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\arduino (1).png" 
-                             alt="Imagem do Arduíno"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+                        <img
+                            src="<?= $componente['IMAGEM'] ?>"
+                            alt="<?= $componente['NOME'] ?>">
                     </div>
+
                     <div class="product-content-horizontal">
-                        <span class="product-category">Eletrônicos</span>
-                        <div class="product-title">Arduino Uno R3 Smd</div>
+                        <span class="product-category">
+                            <?= $componente['CATEGORIA'] ?>
+                        </span>
+                        <div class="product-title">
+                            <?= $componente['NOME'] ?>
+                        </div>
                         <div class="product-description">
-                            O Arduino Uno R3 é uma placa de prototipagem eletrônica baseada no microcontrolador ATmega328P, amplamente utilizada para projetos de eletrônica e programação.
+                            <?= $componente['DESCRICAO'] ?>
                         </div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>3</b></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD LATERAL 4 -->
-                <div class="product-card horizontal-card" data-id="4">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\processador.png" 
-                             alt="Imagem do Processador"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Processadores</span>
-                        <div class="product-title">Intel Core i7-12700K</div>
-                        <div class="product-description">
-                            Processador de 12ª geração com 12 núcleos e 20 threads, ideal para workstations.
-                        </div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>1</b></div>
+                        <div>
+                            Estoque:
+                            <b><?= $componente['QUANTIDADE'] ?></b>
                         </div>
                     </div>
                 </div>
-
+            <?php } ?>
             </div>
 
             <!-- BOTÃO DE FINALIZAR PEDIDO -->
@@ -314,9 +276,11 @@
                 <div class="checkout-info">
                     <span id="selectedCount">0</span> itens selecionados
                 </div>
-                <button class="checkout-button" id="checkoutBtn" onclick="finalizarPedido()" disabled>
-                    🛒 Fazer Pedido
+                <!-- lista de componentes -->
+                <button type="submit" class="checkout-button" id="checkout">
+                    🛒 Novo Pedido
                 </button>
+            </form>
             </div>
                 <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
         </main>
@@ -336,7 +300,7 @@
         function updateCheckoutButton() {
             const checkboxes = document.querySelectorAll('.product-checkbox:checked');
             const count = checkboxes.length;
-            const btn = document.getElementById('checkoutBtn');
+            const btn = document.getElementById('checkout');
             const countDisplay = document.getElementById('selectedCount');
             
             countDisplay.textContent = count;
@@ -346,7 +310,6 @@
         function removeItem(button) {
             if (confirm('Deseja realmente remover este item do carrinho?')) {
                 const card = button.closest('.horizontal-card');
-                card.style.animation = 'fadeOut 0.3s ease';
                 setTimeout(() => {
                     card.remove();
                     updateCheckoutButton();
@@ -356,25 +319,26 @@
 
         function finalizarPedido() {
             const selected = document.querySelectorAll('.product-checkbox:checked');
+
             if (selected.length === 0) {
-                alert('Selecione pelo menos um item para fazer o pedido!');
+                alert('Selecione pelo menos um item!');
                 return;
             }
 
-            const items = [];
+            const itens = [];
+
             selected.forEach(checkbox => {
                 const card = checkbox.closest('.horizontal-card');
-                const title = card.querySelector('.product-title').textContent;
-                items.push(title);
+
+                itens.push({
+                    id: card.dataset.id,
+                    nome: card.querySelector('.product-title').textContent
+                });
             });
 
-            alert(`Pedido realizado com sucesso!\n\nItens selecionados:\n${items.map((item, i) => `${i + 1}. ${item}`).join('\n')}`);
-            
-            // Remover itens selecionados após o pedido
-            selected.forEach(checkbox => {
-                checkbox.closest('.horizontal-card').remove();
-            });
-            updateCheckoutButton();
+            localStorage.setItem("itensPedido", JSON.stringify(itens));
+
+            window.location.href = "novopedido.php";
         }
 
         function buscar() {
@@ -393,21 +357,6 @@
                 }
             });
         }
-
-        // Adicionar animação de fade out
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeOut {
-                from {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateX(-50px);
-                }
-            }
-        `;
         document.head.appendChild(style);
     </script>
 </body>
