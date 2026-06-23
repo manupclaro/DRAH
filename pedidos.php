@@ -164,12 +164,13 @@
 <!-- HEADER -->
   <header>
     <div class="logo">
-      <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+      <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
     </div>
     <nav class="menu-superior">
-      <a href="perfil_adm.php">Perfil</a> 
-      <a href="pedidos_adm.php" class="active">Meus Pedidos</a> 
-      <a href="carrinho_adm.php">Carrinho</a> 
+      <a href="index_padrao.php">Início</a>
+      <a href="perfil.php">Perfil</a> 
+      <a href="pedidos.php" class="active">Meus Pedidos</a> 
+      <a href="carrinho.php">Carrinho</a> 
       <a href="logout.php">Logout</a>  
     </nav>
   </header>
