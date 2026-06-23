@@ -164,11 +164,15 @@
     color: white;
   }
 
-  footer {
-    font-size: 12px;
-    text-align: center;
-    margin: 25px 0;
-  }
+  /* RODAPÉ */
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
 </style>
 
 <?php
@@ -185,7 +189,7 @@ if ($conexao->connect_error) {
 
 <header>
   <div class="logo">
-    <a href="index_adm.html">
+    <a href="index_adm.php">
       <img src="imagens/logo_branco.png">
     </a>
   </div>
@@ -263,12 +267,7 @@ if ($result->num_rows > 0) {
 ?>
 
   </div>
-
-  <footer>
-    Copyright © 2026 - DRAH
-  </footer>
-
+<footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </div>
-
 </body>
 </html>
