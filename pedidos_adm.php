@@ -167,6 +167,7 @@
       <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
     </div>
     <nav class="menu-superior">
+      <a href="index_adm.php">Início</a>
       <a href="perfil_adm.php">Perfil</a> 
       <a href="pedidos_adm.php" class="active">Meus Pedidos</a> 
       <a href="carrinho_adm.php">Carrinho</a> 
