@@ -1,3 +1,10 @@
+<?php
+$componentes = $_POST['componentes'] ?? [];
+
+if (empty($componentes)) {
+    die("Nenhum componente selecionado.");
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -216,7 +223,8 @@
 <div class="container">
   <div class="form-card">
 
-    <h2>Novo Pedido</h2>
+  <h2>Novo Pedido</h2>
+  <div id="listaItens"></div>
 
     <!-- imagem do componente -->
     <div class="preview">
@@ -244,7 +252,7 @@
       <label>Observações:</label>
       <textarea placeholder="Alguma observação extra?"></textarea>
 
-      <button class="btn" type="submit">💾 Salvar pedido</button>
+      <button class="btn" type="submit" name="solicitarPedido">💾 Solicitar Pedido</button>
     </form>
   </div>
 </div>
@@ -256,7 +264,108 @@
     if (num < 1) num = 1;
     q.innerText = num;
   }
+const itens = JSON.parse(localStorage.getItem("itensPedido")) || [];
+
+const lista = document.getElementById("listaItens");
+
+if (itens.length > 0) {
+
+    let html = "<h3>Itens do Pedido</h3><ul>";
+
+    itens.forEach(item => {
+        html += `<li>${item.nome}</li>`;
+    });
+
+    html += "</ul>";
+
+    lista.innerHTML = html;
+}
 </script>
 
+<?php
+
+include("conexao.php");
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvarPedido'])) {
+
+    $idUser = $_SESSION['iduser'];
+
+    $justificativa = $_POST['justificativa'];
+    $observacoes = $_POST['observacoes'];
+    $dataRetirada = $_POST['data_retirada'];
+    $dataPrevia = $_POST['data_previa'];
+
+    $componentes = $_POST['componentes'];
+
+    // Cria pedido
+
+    $sql = "
+        INSERT INTO PEDIDO
+        (
+            STATUSPEDIDO,
+            JUSTIFICATIVA,
+            OBSERVACOES,
+            DATA_PEDIDO,
+            DATA_RETIRADA,
+            DATA_PREVIADEV,
+            IDUSER
+        )
+        VALUES
+        (
+            'Pendente',
+            ?,
+            ?,
+            NOW(),
+            ?,
+            ?,
+            ?
+        )
+    ";
+
+    $stmt = $conn->prepare($sql);
+
+    $stmt->bind_param(
+        "ssssi",
+        $justificativa,
+        $observacoes,
+        $dataRetirada,
+        $dataPrevia,
+        $idUser
+    );
+
+    $stmt->execute();
+    $idPedido = $conn->insert_id;
+
+    foreach ($componentes as $idComp) {
+        $sqlComp = "
+            INSERT INTO PEDIDO_COMP
+            (
+                IDPEDIDO,
+                IDCOMP,
+                QUANTIDADE
+            )
+            VALUES
+            (
+                ?,
+                ?,
+                1
+            )
+        ";
+
+        $stmtComp = $conn->prepare($sqlComp);
+
+        $stmtComp->bind_param(
+            "ii",
+            $idPedido,
+            $idComp
+        );
+
+        $stmtComp->execute();
+    }
+
+    echo "Pedido cadastrado com sucesso";
+}
+?>
 </body>
 </html>
