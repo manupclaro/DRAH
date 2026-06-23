@@ -195,7 +195,7 @@
         <nav class="menu-superior">
             <a href="index_adm.php">Início</a>
             <a href="perfil_adm.html">Perfil</a>
-            <a href="seuspedidos_adm.html">Meus Pedidos</a>
+            <a href="pedidos_adm.html">Meus Pedidos</a>
             <a href="carrinho_adm.html" class="active">Carrinho</a>
             <a href="paineladm.html">Painel ADM</a>
             <a href="logout.php">Logout</a>
