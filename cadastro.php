@@ -84,6 +84,45 @@
         margin-top: 25px;
         margin-bottom: 25px;
     }
+      .termos-box {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.termos-box h3 {
+    color: #006d77;
+    margin-bottom: 10px;
+}
+
+.termos-texto {
+    height: 180px;
+    overflow-y: auto;
+    border: 2px solid #006d77;
+    border-radius: 10px;
+    background: #fff;
+    padding: 15px;
+    text-align: justify;
+    line-height: 1.5;
+}
+
+.aceite {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    color: #006d77;
+    font-weight: bold;
+    cursor: pointer;
+
+    flex-wrap: wrap; /* permite quebrar linha só se precisar */
+}
+.aceite input {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
   </style>
 </head>
 <body>
@@ -107,6 +146,70 @@
 
         <label for="senha">Senha</label>
         <input type="password" id="senha" name="senha" required>
+
+         <div class="termos-box">
+    <h3>Termos de Uso e Responsabilidade</h3>
+
+<div class="termos-texto">
+
+  
+
+        <p>
+            Ao realizar o cadastro e utilizar o sistema de devolução e reserva de aparelhos de hardware,
+            desenvolvido pela equipe 2MB, o usuário declara estar ciente e concorda com os seguintes termos:
+        </p>
+
+        <p><strong>Uso adequado dos componentes</strong></p>
+        <p>
+            Os materiais disponibilizados devem ser utilizados exclusivamente para fins educacionais,
+            acadêmicos ou previamente declarados e autorizados pelo administrador responsável.
+        </p>
+
+        <p><strong>Responsabilidade pela conservação</strong></p>
+        <p>
+            O usuário se compromete a zelar pela integridade dos componentes retirados,
+            mantendo-os em bom estado de uso durante todo o período em que estiver sob sua responsabilidade.
+        </p>
+
+        <p><strong>Prazo de devolução</strong></p>
+        <p>
+            Os itens reservados devem ser devolvidos dentro do prazo estabelecido no momento do pedido da reserva.
+            O não cumprimento do prazo poderá resultar em penalidades definidas pela administração do sistema.
+        </p>
+
+        <p><strong>Perda, dano ou extravio</strong></p>
+        <p>
+            Em caso de dano, perda ou extravio de qualquer componente, o usuário deverá comunicar os responsáveis
+            e poderá ser obrigado a reparar o dano, substituir o item, arcar com os custos correspondentes
+            ou alguma outra penalidade estabelecida pelo administrador responsável.
+        </p>
+
+        <p><strong>Proibição de empréstimo a terceiros</strong></p>
+        <p>
+            Os componentes são de uso individual e intransferível. É proibido repassar, emprestar ou ceder os itens
+            a terceiros sem autorização. Caso realize essa ação, fica sob responsabilidade do usuário que reservou
+            os componentes arcar com os possíveis danos e prejuízos.
+        </p>
+
+        <p><strong>Penalidades</strong></p>
+        <p>
+            O descumprimento de qualquer um dos termos poderá resultar na suspensão ou bloqueio do acesso ao sistema,
+            além de outras medidas administrativas cabíveis definidas pelo administrador responsável.
+        </p>
+
+        <p><strong>Aceite dos termos</strong></p>
+        <p>
+            Ao marcar a opção de aceite no momento do cadastro, o usuário confirma que leu,
+            compreendeu e concorda integralmente com este Termo de Responsabilidade.
+        </p>
+
+    </div>
+
+    <label class="aceite">
+    <input type="checkbox" name="aceitou_termos" required>
+    Li e concordo com os Termos de Responsabilidade
+</label>
+</div>
 
         <input type="hidden" name="tipo_cadastro" value="padrao">
         <button type="submit" class="btn">Finalizar Cadastro</button>
