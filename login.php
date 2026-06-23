@@ -77,29 +77,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $stmt->close();
                     $conn->close();
 
-                if ($dados['tipousua'] == 1) {
-    header("Location: index_adm.php");
-    exit;if ($dados['TIPOUSUA'] == 1) {
-    header("Location: index_adm.php");
-    exit();
-} else {
-    header("Location: index_padrao.php");
-    exit();
+               $_SESSION["logado"] = true;
+$_SESSION["usuario_id"] = $dados["IDUSER"];
+$_SESSION["usuario"] = $dados["NOME"];
+$_SESSION["tipo"] = $dados["TIPOUSUA"];
+
+if (isset($stmt)) {
+    $stmt->close();
 }
 
-                } else {
+$conn->close();
+
+if ($dados["TIPOUSUA"] == 1) {
+    header("Location: index_adm.php");
+} else {
+    header("Location: index_padrao.php");
+}
+
+exit(); }
+else {
                     $erro = "Senha incorreta.";
                 }
             } else {
                 $erro = "CPF não encontrado.";
             }
 
-            $stmt->close();
+          
       
     }
-  }
+  
 
-    $conn->close();
+ 
 
     // Se houver erro, volta para o HTML com a mensagem na URL
     if (!empty($erro)) {
@@ -107,6 +115,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
 
+if (isset($stmt)) {
+    $stmt->close();
+}
 
 $conn->close();
 ?>
