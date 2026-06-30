@@ -1,8 +1,9 @@
 <?php
-$componentes = $_POST['componentes'] ?? [];
+session_start();
+$carrinhoSelecionado = $_POST['carrinho'] ?? [];
 
-if (empty($componentes)) {
-    die("Nenhum componente selecionado.");
+if (empty($carrinhoSelecionado)) {
+    die("Nenhum item selecionado.");
 }
 ?>
 <!DOCTYPE html>
@@ -175,7 +176,7 @@ if (empty($componentes)) {
     height: 90px;
   }
 
-  /* Botão salvar */
+  /* botão solicitar */
   .btn {
     width: 100%;
     background: #fff2e5;
@@ -241,16 +242,16 @@ if (empty($componentes)) {
     <form>
 
       <label>Data de retirada:</label>
-      <input type="date"/>
+      <input type="date" name="data_retirada"/>
 
       <label>Data de devolução:</label>
-      <input type="date"/>
+      <input type="date" name="data_previadev"/>
 
       <label>Justificativa:</label>
-      <textarea placeholder="Explique o uso do componente..."></textarea>
+      <textarea placeholder="Explique o uso do componente..." name="justificativa"></textarea>
 
       <label>Observações:</label>
-      <textarea placeholder="Alguma observação extra?"></textarea>
+      <textarea placeholder="Alguma observação extra?" name="observacoes"></textarea>
 
       <button class="btn" type="submit" name="solicitarPedido">💾 Solicitar Pedido</button>
     </form>
@@ -284,10 +285,9 @@ if (itens.length > 0) {
 
 <?php
 
-include("conexao.php");
-session_start();
+include("config.php");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvarPedido'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
 
     $idUser = $_SESSION['iduser'];
 
@@ -296,9 +296,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvarPedido'])) {
     $dataRetirada = $_POST['data_retirada'];
     $dataPrevia = $_POST['data_previa'];
 
-    $componentes = $_POST['componentes'];
+    $carrinhoSelecionado = $_POST['carrinho'] ?? [];
 
-    // Cria pedido
+    // cria pedido
 
     $sql = "
         INSERT INTO PEDIDO
@@ -337,32 +337,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvarPedido'])) {
     $stmt->execute();
     $idPedido = $conn->insert_id;
 
-    foreach ($componentes as $idComp) {
-        $sqlComp = "
-            INSERT INTO PEDIDO_COMP
-            (
-                IDPEDIDO,
-                IDCOMP,
-                QUANTIDADE
-            )
-            VALUES
-            (
-                ?,
-                ?,
-                1
-            )
-        ";
+    foreach ($carrinhoSelecionado as $idCarrinho){
+      $sql = "SELECT * FROM CARRINHO
+      WHERE IDCARRINHO = ?";
 
-        $stmtComp = $conn->prepare($sqlComp);
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("i", $idCarrinho);
+      $stmt->execute();
 
-        $stmtComp->bind_param(
-            "ii",
-            $idPedido,
-            $idComp
-        );
+      $item = $stmt->get_result()->fetch_assoc();
 
-        $stmtComp->execute();
-    }
+      $idComp = $item['IDCOMP'];
+      $quantidade = $item['QUANTIDADE'];
+
+      $sqlInsert = "INSERT INTO PEDIDO_COMP (IDPEDIDO, IDCOMP, QUANTIDADE)
+      VALUES
+      (?, ?, ?)";
+
+      $stmtInsert = $conn->prepare($sqlInsert);
+
+      $stmtInsert->bind_param(
+          "iii",
+          $idPedido,
+          $idComp,
+          $quantidade
+      );
+
+      $stmtInsert->execute();
+  }
+
+  // remove do carrinho depois de fazer o pedido
+  foreach ($carrinhoSelecionado as $idCarrinho) {
+    $sqlDelete = "DELETE FROM CARRINHO
+    WHERE IDCARRINHO = ?";
+
+    $stmtDelete = $conn->prepare($sqlDelete);
+    $stmtDelete->bind_param("i", $idCarrinho);
+    $stmtDelete->execute();
+  }
 
     echo "Pedido cadastrado com sucesso";
 }
