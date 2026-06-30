@@ -219,25 +219,6 @@
         color: white;
     }
 
-    .comp-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: #ff7f50;
-        color: white;
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        font-weight: bold;
-        z-index: 10;
-        border: none;
-        cursor: pointer;
-    }
-
     .comp-content {
         padding: 25px;
     }
@@ -359,24 +340,7 @@
         overflow: hidden;
         position: relative;
     }
-
-    .horizontal-card .product-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 32px;
-        height: 32px;
-        background: #ff7f50;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        font-weight: bold;
-        z-index: 10;
-        cursor: pointer;
-    }
+    
     .comp-image-horizontal img {
     width: 100%;
     height: 100%;
@@ -461,9 +425,6 @@ if ($result->num_rows > 0) {
 ?>
 
   <div class="comp-card horizontal-card">
-    
-    <span class="comp-badge">+</span>
-
     <!-- IMAGEM PADRONIZADA -->
     <div class="comp-image-horizontal">
         <img src="componentes/<?php echo $row['IMAGEM']; ?>" 
