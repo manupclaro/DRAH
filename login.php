@@ -70,18 +70,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if ($senhaValida) {
                     // ── Sessões ──────────────────────────────────────────────
                     $_SESSION["logado"]      = true;
-                    $_SESSION["usuario_id"]  = $dados["IDUSER"];
+                    $_SESSION["iduser"]      = $dados["IDUSER"];
                     $_SESSION["usuario"]     = $dados["NOME"];
                     $_SESSION["tipo"]        = $dados["TIPOUSUA"];
-
-          
-
-               $_SESSION["logado"] = true;
-$_SESSION["usuario_id"] = $dados["IDUSER"];
-$_SESSION["usuario"] = $dados["NOME"];
-$_SESSION["tipo"] = $dados["TIPOUSUA"];
-
-
 
 if ($dados["TIPOUSUA"] == 1) {
     header("Location: index_adm.php");
