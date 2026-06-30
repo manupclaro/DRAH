@@ -204,7 +204,7 @@ if ($conexao->connect_error) {
 
   <h2>Componentes Disponíveis</h2>
 
-  <a href="cadastrarcomponente.html"
+  <a href="painel_cadastrarcomp.php"
      style="margin-top:15px; background:#006d77; color:white; padding:10px 22px; border-radius:30px; text-decoration:none;">
     Criar novo componente
   </a>
@@ -252,10 +252,15 @@ if ($result->num_rows > 0) {
     Categoria: <?php echo $row['CATEGORIA']; ?>
   </div>
 
-  <button class="btn"
-    onclick="window.location.href='editarcomponente.php?id=<?php echo $row['IDCOMP']; ?>'">
+ <button class="btn"
+    onclick="window.location.href='painel_editarcomp.php?id=<?php echo $row['IDCOMP']; ?>'">
     Alterar componente
-  </button>
+</button>
+
+<button class="btn btn-delete"
+    onclick="confirmarExclusao(<?php echo $row['IDCOMP']; ?>)">
+    Remover componente
+</button>
 
 </div>
 
