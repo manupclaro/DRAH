@@ -74,19 +74,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_SESSION["usuario"]     = $dados["NOME"];
                     $_SESSION["tipo"]        = $dados["TIPOUSUA"];
 
-                    $stmt->close();
-                    $conn->close();
+          
 
                $_SESSION["logado"] = true;
 $_SESSION["usuario_id"] = $dados["IDUSER"];
 $_SESSION["usuario"] = $dados["NOME"];
 $_SESSION["tipo"] = $dados["TIPOUSUA"];
 
-if (isset($stmt)) {
-    $stmt->close();
-}
 
-$conn->close();
 
 if ($dados["TIPOUSUA"] == 1) {
     header("Location: index_adm.php");
