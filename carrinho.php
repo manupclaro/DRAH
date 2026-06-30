@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $conn = new mysqli(
     "localhost",
     "root",
@@ -10,9 +12,31 @@ if ($conn->connect_error) {
     die("Erro: " . $conn->connect_error);
 }
 
-$sql = "SELECT * FROM COMPONENTE";
+if (isset($_POST['remover'])) {
 
-$result = $conn->query($sql);
+    $idCarrinho = $_POST['idcarrinho'];
+
+    $sql = "DELETE FROM CARRINHO
+            WHERE IDCARRINHO = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $idCarrinho);
+    $stmt->execute();
+}
+
+$idUser = $_SESSION['iduser'];
+
+$sql = "SELECT *
+        FROM CARRINHO C
+        INNER JOIN COMPONENTE CP
+        ON C.IDCOMP = CP.IDCOMP
+        WHERE C.IDUSER = ?";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $idUser);
+$stmt->execute();
+
+$result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -159,7 +183,7 @@ $result = $conn->query($sql);
 }
 
 /* BOTÃO REMOVER */
-.product-badge {
+.product-x {
     position: absolute;
     right: 10px;
     top: 10px;
@@ -239,12 +263,8 @@ $result = $conn->query($sql);
                 <div class="product-card horizontal-card"
                     data-id="<?= $componente['IDCOMP'] ?>">
 
-                    <input
-                        type="checkbox"
-                        class="product-checkbox"
-                        name="componentes[]"
-                        value="<?= $componente['IDCOMP'] ?>"
-                        onchange="toggleSelection(this)">
+                    <input type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>">
+                    <button type="submit" name="remover" class="product-x">X</button>
 
                     <div class="product-image-horizontal">
                         <img
@@ -280,6 +300,10 @@ $result = $conn->query($sql);
                 <button type="submit" class="checkout-button" id="checkout">
                     🛒 Novo Pedido
                 </button>
+            </form>
+            <form method="POST">
+                <input type="hidden" name="idcarrinho" value="<?= $componente['IDCARRINHO'] ?>">
+                <button type="submit" name="remover" class="product-x">X</button>
             </form>
             </div>
                 <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
