@@ -1,9 +1,44 @@
 <?php
 session_start();
+include("config.php");
 
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     header("Location: login.php");
     exit();
+}
+
+if (isset($_POST['adicionar'])) {
+
+    $idComp = $_POST['idcomp'];
+    $idUser = $_SESSION['iduser'];
+
+    $sqlVerifica = "SELECT *FROM CARRINHO
+    WHERE IDUSER = ?
+    AND IDCOMP = ?";
+
+    $stmtVerifica = $conexao->prepare($sqlVerifica);
+    $stmtVerifica->bind_param("ii", $idUser, $idComp);
+    $stmtVerifica->execute();
+
+    $resultVerifica = $stmtVerifica->get_result();
+    if ($resultVerifica->num_rows > 0) {
+        $sql = "UPDATE CARRINHO
+        SET QUANTIDADE = QUANTIDADE + 1
+        WHERE IDUSER = ?
+        AND IDCOMP = ?";
+
+        $stmt = $conexao->prepare($sql);
+        $stmt->bind_param("ii", $idUser, $idComp);
+        $stmt->execute();
+    }
+    else {
+        $sql = "INSERT INTO CARRINHO(IDUSER, IDCOMP, QUANTIDADE)
+        VALUES (?, ?, 1)";
+
+        $stmt = $conexao->prepare($sql);
+        $stmt->bind_param("ii", $idUser, $idComp);
+        $stmt->execute();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -455,12 +490,8 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 <div class="comp-grid">
 
 <?php
-include("config.php");
-
 $busca = isset($_GET['busca']) ? $_GET['busca'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
-
-
 
 
 if (isset($_GET['busca'])) {
@@ -484,8 +515,10 @@ if ($result->num_rows > 0) {
 ?>
 
   <div class="comp-card horizontal-card">
-    
-    <span class="comp-badge">+</span>
+    <form method="POST">
+        <input type="hidden" name="idcomp" value="<?php echo $row['IDCOMP']; ?>">
+        <button type="submit" name="adicionar" class="comp-badge">+</button>
+    </form>
 
     <!-- IMAGEM PADRONIZADA -->
     <div class="comp-image-horizontal">
