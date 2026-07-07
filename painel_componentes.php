@@ -258,7 +258,7 @@ if ($result->num_rows > 0) {
 </button>
 
 <button class="btn btn-delete"
-    onclick="confirmarExclusao(<?php echo $row['IDCOMP']; ?>)">
+   onclick="window.location.href='removercomp.php?id=<?php echo $row['IDCOMP']; ?>'">
     Remover componente
 </button>
 
@@ -272,6 +272,8 @@ if ($result->num_rows > 0) {
 ?>
 
   </div>
+
+
 <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </div>
 </body>
