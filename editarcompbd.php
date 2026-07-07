@@ -33,7 +33,7 @@ if(isset($_FILES['imagem']) && $_FILES['imagem']['error'] == 0){
 }
 
 if ($conexao->query($sql)) {
-    header("Location: painel_componentesadm.php");
+    header("Location: painel_componentes.php");
     exit();
 } else {
     echo "Erro: " . $conn->error;
