@@ -1,16 +1,7 @@
 <?php
 session_start();
+include("config.php");
 
-$conn = new mysqli(
-    "localhost",
-    "root",
-    "",
-    "DRAH"
-);
-
-if ($conn->connect_error) {
-    die("Erro: " . $conn->connect_error);
-}
 
 if (isset($_POST['remover'])) {
 
@@ -19,7 +10,7 @@ if (isset($_POST['remover'])) {
     $sql = "DELETE FROM CARRINHO
             WHERE IDCARRINHO = ?";
 
-    $stmt = $conn->prepare($sql);
+    $stmt = $conexao->prepare($sql);
     $stmt->bind_param("i", $idCarrinho);
     $stmt->execute();
 }
@@ -32,7 +23,7 @@ $sql = "SELECT *
         ON C.IDCOMP = CP.IDCOMP
         WHERE C.IDUSER = ?";
 
-$stmt = $conn->prepare($sql);
+$stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $idUser);
 $stmt->execute();
 
@@ -193,6 +184,7 @@ $result = $stmt->get_result();
     border-radius: 50%;
     width: 30px;
     height: 30px;
+    cursor: pointer;
 }
 
 /* CHECKOUT */
@@ -257,19 +249,21 @@ $result = $stmt->get_result();
             </div>
 
             <!-- GRID DE PRODUTOS -->
+            <?php while($componente = $result->fetch_assoc()) { ?>
+            <form method="POST">
+                    <input type="hidden" name="idcarrinho" value="<?= $componente['IDCARRINHO'] ?>">
+                    <button type="submit" name="remover" class="product-x">X</button>
+                </form>
             <form action="novopedido.php" method="POST">
             <div class="products-grid">
-            <?php while($componente = $result->fetch_assoc()) { ?>
+            
                 <div class="product-card horizontal-card"
                     data-id="<?= $componente['IDCOMP'] ?>">
 
-                    <input type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>">
-                    <button type="submit" name="remover" class="product-x">X</button>
+                    <input class="checkout-button" type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>">
 
                     <div class="product-image-horizontal">
-                        <img
-                            src="<?= $componente['IMAGEM'] ?>"
-                            alt="<?= $componente['NOME'] ?>">
+                        <img src="componentes/<?= $componente['IMAGEM'] ?>" alt="<?= $componente['NOME'] ?>">
                     </div>
 
                     <div class="product-content-horizontal">
@@ -301,10 +295,6 @@ $result = $stmt->get_result();
                     🛒 Novo Pedido
                 </button>
             </form>
-            <form method="POST">
-                <input type="hidden" name="idcarrinho" value="<?= $componente['IDCARRINHO'] ?>">
-                <button type="submit" name="remover" class="product-x">X</button>
-            </form>
             </div>
                 <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
         </main>
@@ -322,7 +312,7 @@ $result = $stmt->get_result();
         }
 
         function updateCheckoutButton() {
-            const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+            const checkboxes = document.querySelectorAll('.checkout-button:checked');
             const count = checkboxes.length;
             const btn = document.getElementById('checkout');
             const countDisplay = document.getElementById('selectedCount');
@@ -381,7 +371,6 @@ $result = $stmt->get_result();
                 }
             });
         }
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
