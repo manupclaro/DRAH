@@ -1,5 +1,6 @@
 <?php
 session_start();
+include("config.php");
 $carrinhoSelecionado = $_POST['carrinho'] ?? [];
 
 if (empty($carrinhoSelecionado)) {
@@ -227,19 +228,39 @@ if (empty($carrinhoSelecionado)) {
   <h2>Novo Pedido</h2>
   <div id="listaItens"></div>
 
-    <!-- imagem do componente -->
-    <div class="preview">
-      <img src="componentes/ledverde.png" alt="">
-    </div>
+    <form method="POST">
+    <?php
+    foreach ($carrinhoSelecionado as $idCarrinho) {
+        echo '<input type="hidden" name="carrinho[]" value="'.$idCarrinho.'">';
+        $sql = "SELECT C.*, CP.NOME, CP.IMAGEM
+        FROM CARRINHO C
+        JOIN COMPONENTE CP ON C.IDCOMP = CP.IDCOMP
+        WHERE C.IDCARRINHO = ?";
 
-    <!-- Quantidade -->
-    <div class="qty-box">
-      <button type="button" class="qty-btn" onclick="alterarQuantidade(-1)">−</button>
-      <span class="qty-num" id="quantidade">1</span>
-      <button type="button" class="qty-btn" onclick="alterarQuantidade(1)">+</button>
-    </div>
+        $stmt = $conexao->prepare($sql);
+        $stmt->bind_param("i", $idCarrinho);
+        $stmt->execute();
 
-    <form>
+        $item = $stmt->get_result()->fetch_assoc();
+
+        echo '
+        <div class="item-pedido">
+            <img src="'.$item['IMAGEM'].'" width="100">
+            <h3>'.$item['NOME'].'</h3>
+
+            <input
+                type="number"
+                name="quantidade['.$idCarrinho.']"
+                value="'.$item['QUANTIDADE'].'"
+                min="1">
+
+            <input
+                type="hidden"
+                name="carrinho[]"
+                value="'.$idCarrinho.'">
+        </div>';
+    }
+    ?>
 
       <label>Data de retirada:</label>
       <input type="date" name="data_retirada"/>
@@ -284,9 +305,6 @@ if (itens.length > 0) {
 </script>
 
 <?php
-
-include("config.php");
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
 
     $idUser = $_SESSION['iduser'];
@@ -294,7 +312,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
     $justificativa = $_POST['justificativa'];
     $observacoes = $_POST['observacoes'];
     $dataRetirada = $_POST['data_retirada'];
-    $dataPrevia = $_POST['data_previa'];
+    $dataPrevia = $_POST['data_previadev'];
 
     $carrinhoSelecionado = $_POST['carrinho'] ?? [];
 
@@ -323,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
         )
     ";
 
-    $stmt = $conn->prepare($sql);
+    $stmt = $conexao->prepare($sql);
 
     $stmt->bind_param(
         "ssssi",
@@ -335,26 +353,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
     );
 
     $stmt->execute();
-    $idPedido = $conn->insert_id;
+    $idPedido = $conexao->insert_id;
 
     foreach ($carrinhoSelecionado as $idCarrinho){
       $sql = "SELECT * FROM CARRINHO
       WHERE IDCARRINHO = ?";
 
-      $stmt = $conn->prepare($sql);
+      $stmt = $conexao->prepare($sql);
       $stmt->bind_param("i", $idCarrinho);
       $stmt->execute();
 
       $item = $stmt->get_result()->fetch_assoc();
 
       $idComp = $item['IDCOMP'];
-      $quantidade = $item['QUANTIDADE'];
+      $quantidade = $_POST['quantidade'][$idCarrinho];
 
       $sqlInsert = "INSERT INTO PEDIDO_COMP (IDPEDIDO, IDCOMP, QUANTIDADE)
       VALUES
       (?, ?, ?)";
 
-      $stmtInsert = $conn->prepare($sqlInsert);
+      $stmtInsert = $conexao->prepare($sqlInsert);
 
       $stmtInsert->bind_param(
           "iii",
@@ -371,7 +389,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
     $sqlDelete = "DELETE FROM CARRINHO
     WHERE IDCARRINHO = ?";
 
-    $stmtDelete = $conn->prepare($sqlDelete);
+    $stmtDelete = $conexao->prepare($sqlDelete);
     $stmtDelete->bind_param("i", $idCarrinho);
     $stmtDelete->execute();
   }
