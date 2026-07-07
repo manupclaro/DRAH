@@ -31,7 +31,7 @@ VALUES
 
     if ($conn->query($sql)) {
         echo "✅ Componente cadastrado com sucesso!";
-         header("Location: painel_componentesadm.php");
+         header("Location: painel_componentes.php");
     exit();
     } else {
         echo "Erro no banco: " . $conn->error;
