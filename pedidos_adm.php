@@ -1,3 +1,63 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verifica se há sessão ativa e se o usuário logado possui permissão de ADM
+// (Ajuste o nome da chave de sessão conforme a sua tela de login do ADM)
+if (!isset($_SESSION['id_user']) || empty($_SESSION['is_adm'])) {
+    header("Location: logindrah.html");
+    exit;
+}
+
+// Configuração de Conexão com o Banco de Dados
+$host     = 'localhost';
+$dbname   = 'DRAH';
+$username = 'root';
+$password = ''; // Sua senha do MySQL aqui
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Erro ao conectar ao banco de dados: " . $e->getMessage());
+}
+
+// Consulta SQL para ADM: busca TODOS os pedidos do sistema e inclui o NOME do usuário solicitante
+$sql = "SELECT 
+            p.*,
+            u.NOME AS NOME_USUARIO,
+            GROUP_CONCAT(c.NOME SEPARATOR ', ') AS COMPONENTES_LISTA,
+            SUM(pc.QUANTIDADE) AS TOTAL_ITENS
+        FROM PEDIDO p
+        INNER JOIN USUARIO u ON p.IDUSER = u.IDUSER
+        LEFT JOIN PEDIDO_COMP pc ON p.IDPEDIDO = pc.IDPEDIDO
+        LEFT JOIN COMPONENTE c ON pc.IDCOMP = c.IDCOMP
+        GROUP BY p.IDPEDIDO
+        ORDER BY p.DATA_PEDIDO DESC";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$pedidos = $stmt->fetchAll();
+
+// Dicionário de classes CSS de status
+$status_classes = [
+    'Aprovado'   => 'status-aprov',
+    'Devolvido'  => 'status-dev',
+    'Retirado'   => 'status-anda',
+    'Em Análise' => 'status-ana',
+    'Recusado'   => 'status-recus'
+];
+
+// Função auxiliar para formatar datas no padrão DD/MM/AAAA
+function formatarDataBR($data) {
+    if (empty($data) || $data === '0000-00-00 00:00:00' || $data === '0000-00-00') {
+        return '—';
+    }
+    return date('d/m/Y', strtotime($data));
+}
+?>
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -71,84 +131,81 @@
         color: #006d77;
     }
 
-    .wrap{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:32px;
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
     }
 
-    .card{
-      width:100%;
-      max-width:920px;
-      background:var(--card);
-      border-radius:16px;
-      padding:28px;
-      display:flex;
-      flex-direction:column;
-      gap:20px;
+    .card {
+      width: 100%;
+      max-width: 920px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    h1{margin:0;font-size:24px;text-align:center}
+    h1 { margin: 0; font-size: 24px; text-align: center; }
 
-    .pedido{
-      background:white;
+    .pedido {
+      background: white;
       border: 1px solid #e5fffa;
-      border-radius:14px;
-      padding:20px;
+      border-radius: 14px;
+      padding: 20px;
     }
 
     /* header com badges agrupados à direita */
-    .pedido-header{display:flex;align-items:center;margin-bottom:14px}
-    .pedido-header strong{font-weight:700}
+    .pedido-header { display: flex; align-items: center; margin-bottom: 14px; }
+    .pedido-header strong { font-weight: 700; }
 
     /* badges separadas, alinhadas à direita e com divisória */
-.badges {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px; /* distância entre etiquetas */
-}
+    .badges {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-.badges span {
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-  border-radius: 10px;   /* cada etiqueta arredondada */
-  position: relative;
-}
+    .badges span {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      border-radius: 10px;
+      position: relative;
+    }
 
-/* divisória entre as labels */
-.badges span:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  right: -4px;
-  top: 50%;
-  width: 2px;
-  height: 18px;
-  background: #999;
-  border-radius: 2px;
-}
+    /* divisória entre as labels */
+    .badges span:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 50%;
+      width: 2px;
+      height: 18px;
+      background: #999;
+      border-radius: 2px;
+      transform: translateY(-50%);
+    }
 
     /* cores específicas */
-    .status-dev{background: cornflowerblue}
-    .status-aprov{background: mediumseagreen}
-    .status-recus{background: tomato}
-    .status-anda{background: rgb(255, 185, 99)}
-    .status-ana{background: violet}
-    .comprovante{background: #ED5721}
+    .status-dev   { background: cornflowerblue; }
+    .status-aprov { background: mediumseagreen; }
+    .status-recus { background: tomato; }
+    .status-anda  { background: rgb(255, 185, 99); }
+    .status-ana   { background: violet; }
+    .comprovante  { background: #ED5721; }
 
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
-    label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
-    .info{font-size:15px;padding:10px;border-radius:10px;background:#fafafa;border:1px solid #eee}
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    label { display: block; font-size: 13px; color: #6b6b6b; margin-bottom: 4px; }
+    .info { font-size: 15px; padding: 10px; border-radius: 10px; background: #fafafa; border: 1px solid #eee; min-height: 40px; }
 
-    @media(max-width:700px){.grid{grid-template-columns:1fr}}
-    .menu-superior a.active {
-        background: white;
-        color: #006d77;
-    }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
 
     footer {
         bottom: 15px;
@@ -175,208 +232,74 @@
     </nav>
   </header>
   
+  <!-- FRONT-END-->
   <div class="wrap">
     <section class="card">
-      <h1>Meus Pedidos</h1>
+      <h1>Meus Pedidos - Administração</h1>
 
-      <div class="pedido">
-        <div class="pedido-header">
-          <strong>Pedido #1029</strong>
+      <?php if (empty($pedidos)): ?>
+          <p style="text-align:center; color: #666; padding: 30px;">
+            Nenhum pedido foi registrado no sistema até o momento.
+          </p>
+      <?php else: ?>
+          <?php foreach ($pedidos as $pedido): 
+              $classe_status = $status_classes[$pedido['STATUSPEDIDO']] ?? 'status-ana';
+          ?>
+              <div class="pedido">
+                <div class="pedido-header">
+                  <strong>Pedido #<?= sprintf('%04d', $pedido['IDPEDIDO']) ?> &mdash; <?= htmlspecialchars($pedido['NOME_USUARIO'] ?? 'Usuário ID: ' . $pedido['IDUSER']) ?></strong>
 
-          <!-- container que segura as etiquetas, sem espaço entre elas -->
-          <div class="badges" aria-hidden="true">
-            <span class="status-aprov">Aprovado</span>
-          </div>
-        </div>
+                  <div class="badges" aria-hidden="true">
+                    <span class="<?= $classe_status ?>"><?= htmlspecialchars($pedido['STATUSPEDIDO']) ?></span>
+                    
+                    <?php if ($pedido['STATUSPEDIDO'] === 'Devolvido'): ?>
+                        <span class="comprovante">Comprovante</span>
+                    <?php endif; ?>
+                  </div>
+                </div>
 
-        <div class="grid">
-          <div>
-            <label>Componentes</label>
-            <div class="info">Resistor 10kΩ, Arduino Uno, Fonte 12V</div>
-          </div>
-          <div>
-            <label>Quantidade total</label>
-            <div class="info">7 itens</div>
-          </div>
-          <div>
-            <label>Data de retirada</label>
-            <div class="info">14/12/2025</div>
-          </div>
-          <div>
-            <label>Data de devolução</label>
-            <div class="info">20/12/2025</div>
-          </div>
-          <div>
-            <label>Estado do componente devolvido</label>
-            <div class="info"></div>
-          </div>
-          <div>
-            <label>Justificativa</label>
-            <div class="info">Mostra de Ciências.</div>
-          </div>
-          <div>
-            <label>Observações</label>
-            <div class="info">Nenhuma observação registrada.</div>
-          </div>
-        </div>
-      </div>
+                <div class="grid">
+                  <div>
+                    <label>Componentes</label>
+                    <div class="info"><?= htmlspecialchars($pedido['COMPONENTES_LISTA'] ?? 'Nenhum componente') ?></div>
+                  </div>
+                  <div>
+                    <label>Quantidade total</label>
+                    <div class="info"><?= (int)$pedido['TOTAL_ITENS'] ?> <?= (int)$pedido['TOTAL_ITENS'] === 1 ? 'item' : 'itens' ?></div>
+                  </div>
+                  <div>
+                    <label>Data de retirada</label>
+                    <div class="info"><?= formatarDataBR($pedido['DATA_RETIRADA'] ?? null) ?></div>
+                  </div>
+                  <div>
+                    <label>Data de devolução</label>
+                    <div class="info">
+                      <?php 
+                        if (!empty($pedido['DATA_DEVOLUCAO']) && $pedido['DATA_DEVOLUCAO'] !== '0000-00-00') {
+                            echo formatarDataBR($pedido['DATA_DEVOLUCAO']) . " (Real)";
+                        } else {
+                            echo formatarDataBR($pedido['DATA_PREVIADEV'] ?? null) . " (Prevista)";
+                        }
+                      ?>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Estado do componente devolvido</label>
+                    <div class="info"><?= htmlspecialchars($pedido['ESTADO_COMPONENTE'] ?? $pedido['ESTADO_DEV'] ?? '—') ?></div>
+                  </div>
+                  <div>
+                    <label>Justificativa</label>
+                    <div class="info"><?= htmlspecialchars($pedido['JUSTIFICATIVA'] ?? '—') ?></div>
+                  </div>
+                  <div>
+                    <label>Observações</label>
+                    <div class="info"><?= htmlspecialchars($pedido['OBSERVACOES'] ?? 'Nenhuma observação registrada.') ?></div>
+                  </div>
+                </div>
+              </div>
+          <?php endforeach; ?>
+      <?php endif; ?>
 
-      <div class="pedido">
-        <div class="pedido-header">
-          <strong>Pedido #0666</strong>
-
-          <!-- container que segura as etiquetas, sem espaço entre elas -->
-          <div class="badges" aria-hidden="true">
-            <span class="status-dev">Devolvido</span>
-            <span class="comprovante">Comprovante</span>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div>
-            <label>Componentes</label>
-            <div class="info">Resistor 10kΩ, Arduino Uno, Fonte 12V</div>
-          </div>
-          <div>
-            <label>Quantidade total</label>
-            <div class="info">7 itens</div>
-          </div>
-          <div>
-            <label>Data de retirada</label>
-            <div class="info">14/11/2025</div>
-          </div>
-          <div>
-            <label>Data de devolução</label>
-            <div class="info">21/11/2025</div>
-          </div>
-          <div>
-            <label>Estado do componente devolvido</label>
-            <div class="info">Perfeito estado</div>
-          </div>
-          <div>
-            <label>Observações</label>
-            <div class="info">Nenhuma observação registrada.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pedido">
-        <div class="pedido-header">
-          <strong>Pedido #1000</strong>
-
-          <!-- container que segura as etiquetas, sem espaço entre elas -->
-          <div class="badges" aria-hidden="true">
-            <span class="status-anda">Retirado</span>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div>
-            <label>Componentes</label>
-            <div class="info">Cabo SATA</div>
-          </div>
-          <div>
-            <label>Quantidade total</label>
-            <div class="info">2 itens</div>
-          </div>
-          <div>
-            <label>Data de retirada</label>
-            <div class="info">10/11/2025</div>
-          </div>
-          <div>
-            <label>Data de devolução</label>
-            <div class="info">11/11/2025</div>
-          </div>
-          <div>
-            <label>Estado do componente devolvido</label>
-            <div class="info"> </div>
-          </div>
-          <div>
-            <label>Justificativas</label>
-            <div class="info">Mostra de Ciências.</div>
-          </div>
-          <div>
-            <label>Observações</label>
-            <div class="info">Nenhuma observação registrada.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pedido">
-        <div class="pedido-header">
-          <strong>Pedido #0666</strong>
-
-          <!-- container que segura as etiquetas, sem espaço entre elas -->
-          <div class="badges" aria-hidden="true">
-            <span class="status-ana">Em Análise</span>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div>
-            <label>Componentes</label>
-            <div class="info">Resistor 10kΩ, Arduino Uno, Fonte 12V</div>
-          </div>
-          <div>
-            <label>Quantidade total</label>
-            <div class="info">7 itens</div>
-          </div>
-          <div>
-            <label>Data de retirada</label>
-            <div class="info">14/11/2025</div>
-          </div>
-          <div>
-            <label>Data de devolução</label>
-            <div class="info">21/11/2025</div>
-          </div>
-          <div>
-            <label>Estado do componente devolvido</label>
-            <div class="info"></div>
-          </div>
-          <div>
-            <label>Observações</label>
-            <div class="info">Nenhuma observação registrada.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pedido">
-        <div class="pedido-header">
-          <strong>Pedido #0666</strong>
-
-          <!-- container que segura as etiquetas, sem espaço entre elas -->
-          <div class="badges" aria-hidden="true">
-            <span class="status-recus">Recusado</span>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div>
-            <label>Componentes</label>
-            <div class="info">Resistor 10kΩ, Arduino Uno, Fonte 12V</div>
-          </div>
-          <div>
-            <label>Quantidade total</label>
-            <div class="info">7 itens</div>
-          </div>
-          <div>
-            <label>Data de retirada</label>
-            <div class="info">14/11/2025</div>
-          </div>
-          <div>
-            <label>Data de devolução</label>
-            <div class="info">21/11/2025</div>
-          </div>
-          <div>
-            <label>Estado do componente devolvido</label>
-            <div class="info"></div>
-          </div>
-          <div>
-            <label>Observações</label>
-            <div class="info">Nenhuma observação registrada.</div>
-          </div>
-        </div>
-      </div>
     </section>
   </div>
   <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
