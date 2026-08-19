@@ -203,6 +203,14 @@ $conn->close();
       transition: color .2s;
     }
     .criarConta a:hover { color: #ed5721; }
+
+    footer {
+        bottom: 15px;
+        font-size: 12px;
+        color: #333;
+        text-align: center;
+        margin-top: 50px;
+    }
   </style>
 </head>
 
@@ -237,7 +245,10 @@ $conn->close();
     <div class="criarConta">
       <a href="cadastro_tipo.html">Criar conta</a>
     </div>
-
+    <div class="criarConta">
+      <a href="index.php">Continuar sem login</a>
+    </div>
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
 </body>
 </html>
