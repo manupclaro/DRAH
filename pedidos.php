@@ -3,19 +3,20 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Verifica se o usuário está logado (se não estiver, manda pro login)
-if (!isset($_SESSION['id_user'])) {
-    header("Location: logindrah.html");
-    exit;
-}
+// Suporte para diferentes nomes de variáveis de sessão
+$id_usuario_logado = $_SESSION['id_user'] ?? $_SESSION['iduser'] ?? $_SESSION['usuario_id'] ?? null;
 
-$id_usuario_logado = $_SESSION['id_user'];
+// Verifica se o usuário está logado
+if (!$id_usuario_logado) {
+    header("Location: login.php");
+    exit();
+}
 
 // Configuração de Conexão com o Banco de Dados
 $host     = 'localhost';
 $dbname   = 'DRAH';
 $username = 'root';
-$password = ''; // Coloque sua senha do MySQL aqui, se houver
+$password = ''; // Coloque sua senha do MySQL se houver
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
@@ -76,7 +77,7 @@ function formatarDataBR($data) {
         background: #ffb084;
         color: #333;
         min-height: 100vh;
-        padding-top: 80px;
+        padding-top: 100px;
     }
 
     /* HEADER */
@@ -92,6 +93,7 @@ function formatarDataBR($data) {
         padding: 0 32px;
         background: #ED5721;
         z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .logo {
@@ -120,10 +122,11 @@ function formatarDataBR($data) {
         border-radius: 20px;
         font-weight: 600;
         text-decoration: none !important;
+        transition: background 0.2s;
     }
 
     .menu-superior a:hover {
-        background: #ED5721;
+        background: #c94415;
     }
 
     .menu-superior a.active {
@@ -132,92 +135,111 @@ function formatarDataBR($data) {
     }
 
     .wrap {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
+        max-width: 920px;
+        margin: 0 auto 40px auto;
+        padding: 0 20px;
     }
 
     .card {
-      width: 100%;
-      max-width: 920px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+        width: 100%;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
 
-    h1 { margin: 0; font-size: 24px; text-align: center; }
+    h1 { 
+        margin: 0; 
+        font-size: 24px; 
+        text-align: center;
+        color: #ED5721;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ffb084;
+    }
 
     .pedido {
-      background: white;
-      border: 1px solid #fff2e5;
-      border-radius: 14px;
-      padding: 20px;
+        background: white;
+        border: 1px solid #ffd8c4;
+        border-radius: 14px;
+        padding: 20px;
     }
 
-    /* header com badges agrupados à direita */
-    .pedido-header { display: flex; align-items: center; margin-bottom: 14px; }
-    .pedido-header strong { font-weight: 700; }
+    .pedido-header { 
+        display: flex; 
+        align-items: center; 
+        margin-bottom: 14px; 
+    }
+    
+    .pedido-header strong { 
+        font-weight: 700; 
+        font-size: 16px;
+    }
 
-    /* badges separadas, alinhadas à direita e com divisória */
     .badges {
-      margin-left: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .badges span {
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: white;
-      border-radius: 10px;
-      position: relative;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: white;
+        border-radius: 10px;
     }
 
-    /* divisória entre as labels */
-    .badges span:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      right: -4px;
-      top: 50%;
-      width: 2px;
-      height: 18px;
-      background: #999;
-      border-radius: 2px;
-      transform: translateY(-50%);
-    }
-
-    /* cores específicas */
-    .status-dev   { background: cornflowerblue; }
-    .status-aprov { background: mediumseagreen; }
-    .status-recus { background: tomato; }
-    .status-anda  { background: rgb(255, 185, 99); }
-    .status-ana   { background: violet; }
+    /* Cores de status */
+    .status-dev   { background: #4a90e2; }
+    .status-aprov { background: #2ecc71; }
+    .status-recus { background: #e74c3c; }
+    .status-anda  { background: #f39c12; }
+    .status-ana   { background: #9b59b6; }
     .comprovante  { background: #ED5721; }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
-    label { display: block; font-size: 13px; color: #6b6b6b; margin-bottom: 4px; }
-    .info { font-size: 15px; padding: 10px; border-radius: 10px; background: #fafafa; border: 1px solid #eee; min-height: 40px; }
+    .grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 14px; 
+        margin-top: 10px; 
+    }
+    
+    label { 
+        display: block; 
+        font-size: 13px; 
+        color: #6b6b6b; 
+        margin-bottom: 4px; 
+        font-weight: 600;
+    }
+    
+    .info { 
+        font-size: 14px; 
+        padding: 10px; 
+        border-radius: 8px; 
+        background: #fafafa; 
+        border: 1px solid #eee; 
+        min-height: 40px; 
+    }
 
-    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { 
+        .grid { grid-template-columns: 1fr; } 
+    }
 
     footer {
-        bottom: 15px;
         font-size: 12px;
         color: #333;
         text-align: center;
-        margin-top: 25px;
-        margin-bottom: 25px;
+        margin-top: 30px;
+        margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
+
   <!-- HEADER -->
   <header>
     <div class="logo">
@@ -228,20 +250,18 @@ function formatarDataBR($data) {
       <a href="perfil.php">Perfil</a> 
       <a href="pedidos.php" class="active">Meus Pedidos</a> 
       <a href="carrinho.php">Carrinho</a> 
-      <a href="logout.php">Logout</a>  
+      <a href="logout.php">Sair</a>  
     </nav>
   </header>
-  
 
-  <!--  FRONT-END  -->
-  
+  <!-- Conteúdo Principal -->
   <div class="wrap">
     <section class="card">
       <h1>Meus Pedidos</h1>
 
       <?php if (empty($pedidos)): ?>
-          <p style="text-align:center; color: #666; padding: 30px;">
-            Você ainda não realizou nenhum pedido.
+          <p style="text-align:center; color: #666; padding: 40px 0;">
+            Você ainda não realizou nenhum pedido ou reserva.
           </p>
       <?php else: ?>
           <?php foreach ($pedidos as $pedido): 
@@ -251,7 +271,7 @@ function formatarDataBR($data) {
                 <div class="pedido-header">
                   <strong>Pedido #<?= sprintf('%04d', $pedido['IDPEDIDO']) ?></strong>
 
-                  <div class="badges" aria-hidden="true">
+                  <div class="badges">
                     <span class="<?= $classe_status ?>"><?= htmlspecialchars($pedido['STATUSPEDIDO']) ?></span>
                     
                     <?php if ($pedido['STATUSPEDIDO'] === 'Devolvido'): ?>
@@ -293,7 +313,7 @@ function formatarDataBR($data) {
                     <label>Justificativa</label>
                     <div class="info"><?= htmlspecialchars($pedido['JUSTIFICATIVA'] ?? '—') ?></div>
                   </div>
-                  <div>
+                  <div style="grid-column: span 2;">
                     <label>Observações</label>
                     <div class="info"><?= htmlspecialchars($pedido['OBSERVACOES'] ?? 'Nenhuma observação registrada.') ?></div>
                   </div>
@@ -303,8 +323,9 @@ function formatarDataBR($data) {
       <?php endif; ?>
 
     </section>
+
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
 
-  <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </body>
 </html>
