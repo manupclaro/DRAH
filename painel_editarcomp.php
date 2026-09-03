@@ -201,8 +201,8 @@ $dados = $result->fetch_assoc();
   </div>
 
   <div class="menu-superior">
-    <a href="index.php">Início</a>
-    <a href="listar.php">Componentes</a>
+    <a href="index_adm.php">Início</a>
+    <a href="painel_componentes.php">Componentes</a>
   </div>
 </header>
 
