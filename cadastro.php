@@ -135,9 +135,21 @@
         <label for="nome">Nome completo</label>
         <input type="text" id="nome" name="nome" required>
 
+      
         <label for="cpf">CPF</label>
-        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
+        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00"  maxlength="14" required>
 
+              <script>
+                  document.getElementById('cpf').addEventListener('input', function(e) {
+                  let value = e.target.value.replace(/\D/g, ''); /
+                     value = value.slice(0, 11);
+                     value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                     value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                     value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+                     e.target.value = value;
+                      });
+                 </script>
         <label for="email">E-mail</label>
         <input type="email" id="email" name="email" placeholder="xxxx@xxx.xxx" required>
 
