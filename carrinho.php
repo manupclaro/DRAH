@@ -232,7 +232,7 @@ $result = $stmt->get_result();
             <a href="carrinho.php" class="active">Carrinho</a> 
             <a href="logout.php">Logout</a>  
         </nav>
-      </header>
+    </header>
 
     <!-- CONTAINER PRINCIPAL -->
     <div class="main-container">
@@ -249,54 +249,36 @@ $result = $stmt->get_result();
             </div>
 
             <!-- GRID DE PRODUTOS -->
-            <?php while($componente = $result->fetch_assoc()) { ?>
-            <form method="POST">
-                    <input type="hidden" name="idcarrinho" value="<?= $componente['IDCARRINHO'] ?>">
-                    <button type="submit" name="remover" class="product-x">X</button>
-                </form>
-            <form action="novopedido.php" method="POST">
-            <div class="products-grid">
-            
-                <div class="product-card horizontal-card"
-                    data-id="<?= $componente['IDCOMP'] ?>">
+            <form action="novopedido.php" method="POST" id="pedidoForm">
+                <div class="products-grid">
+                    <?php while($componente = $result->fetch_assoc()) { ?>
 
-                    <input class="checkout-button" type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>">
+                    <div class="product-card horizontal-card" data-id="<?= $componente['IDCOMP'] ?>">
+                        <input class="checkout-button"type="checkbox"name="carrinho[]"value="<?= $componente['IDCARRINHO'] ?>"form="pedidoForm">
+                        <div class="product-image-horizontal">
+                            <img src="componentes/<?= $componente['IMAGEM'] ?>" alt="<?= $componente['NOME'] ?>">
+                        </div>
 
-                    <div class="product-image-horizontal">
-                        <img src="componentes/<?= $componente['IMAGEM'] ?>" alt="<?= $componente['NOME'] ?>">
+                        <div class="product-content-horizontal">
+                            <span class="product-category"><?= $componente['CATEGORIA'] ?></span>
+                            <div class="product-title"><?= $componente['NOME'] ?></div>
+                            <div class="product-description"><?= $componente['DESCRICAO'] ?></div>
+                            <div>Estoque:<b><?= $componente['QUANTIDADE'] ?></b></div>
+                        </div>
+                        <!-- X -->
+                        <button type="button" class="product-x" onclick="removerItem(<?= $componente['IDCARRINHO'] ?>)">X</button>
                     </div>
+                    <?php } ?>
+                </div>
 
-                    <div class="product-content-horizontal">
-                        <span class="product-category">
-                            <?= $componente['CATEGORIA'] ?>
-                        </span>
-                        <div class="product-title">
-                            <?= $componente['NOME'] ?>
-                        </div>
-                        <div class="product-description">
-                            <?= $componente['DESCRICAO'] ?>
-                        </div>
-                        <div>
-                            Estoque:
-                            <b><?= $componente['QUANTIDADE'] ?></b>
-                        </div>
+                <div class="checkout-container">
+                    <div class="checkout-info">
+                        <span id="selectedCount">0</span> itens selecionados
                     </div>
+                    <button type="submit" class="checkout-button" id="checkout">🛒 Novo Pedido</button>
                 </div>
-            <?php } ?>
-            </div>
-
-            <!-- BOTÃO DE FINALIZAR PEDIDO -->
-            <div class="checkout-container">
-                <div class="checkout-info">
-                    <span id="selectedCount">0</span> itens selecionados
-                </div>
-                <!-- lista de componentes -->
-                <button type="submit" class="checkout-button" id="checkout">
-                    🛒 Novo Pedido
-                </button>
             </form>
-            </div>
-                <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
+            <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
         </main>
     </div>
 
@@ -321,13 +303,26 @@ $result = $stmt->get_result();
             btn.disabled = count === 0;
         }
 
-        function removeItem(button) {
+        function removerItem(idCarrinho) {
             if (confirm('Deseja realmente remover este item do carrinho?')) {
-                const card = button.closest('.horizontal-card');
-                setTimeout(() => {
-                    card.remove();
-                    updateCheckoutButton();
-                }, 300);
+                const form = document.createElement('form');
+                form.method = 'POST';
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'idcarrinho';
+                input.value = idCarrinho;
+
+                const button = document.createElement('input');
+                button.type = 'hidden';
+                button.name = 'remover';
+                button.value = '1';
+
+                form.appendChild(input);
+                form.appendChild(button);
+
+                document.body.appendChild(form);
+                form.submit();
             }
         }
 

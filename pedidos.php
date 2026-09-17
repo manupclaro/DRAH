@@ -93,7 +93,6 @@ function formatarDataBR($data) {
         padding: 0 32px;
         background: #ED5721;
         z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .logo {
@@ -122,11 +121,10 @@ function formatarDataBR($data) {
         border-radius: 20px;
         font-weight: 600;
         text-decoration: none !important;
-        transition: background 0.2s;
     }
 
     .menu-superior a:hover {
-        background: #c94415;
+        background: #ED5721;
     }
 
     .menu-superior a.active {
@@ -148,7 +146,6 @@ function formatarDataBR($data) {
         display: flex;
         flex-direction: column;
         gap: 20px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
 
     h1 { 
@@ -239,20 +236,19 @@ function formatarDataBR($data) {
   </style>
 </head>
 <body>
-
   <!-- HEADER -->
-  <header>
-    <div class="logo">
-      <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
-    </div>
-    <nav class="menu-superior">
-      <a href="index_padrao.php">Início</a>
-      <a href="perfil.php">Perfil</a> 
-      <a href="pedidos.php" class="active">Meus Pedidos</a> 
-      <a href="carrinho.php">Carrinho</a> 
-      <a href="logout.php">Sair</a>  
-    </nav>
-  </header>
+    <header>
+        <div class="logo">
+            <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+        </div>
+        <nav class="menu-superior">
+            <a href="index_padrao.php">Início</a>
+            <a href="perfil.php">Perfil</a> 
+            <a href="pedidos.php" class="active">Meus Pedidos</a> 
+            <a href="carrinho.php">Carrinho</a> 
+            <a href="logout.php">Logout</a>  
+        </nav>
+      </header>
 
   <!-- Conteúdo Principal -->
   <div class="wrap">
