@@ -179,6 +179,7 @@
         <nav class="menu-superior">
             <a href="index_adm.php">Início</a>
             <a href="painel_componentes.php">Componentes</a>
+            <a href="painel_historiccomp.php">Histórico</a>
             <a href="paineladm.html">Painel ADM</a>
             <a href="logout.php">Logout</a>
         </nav>
