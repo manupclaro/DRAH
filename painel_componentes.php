@@ -94,34 +94,22 @@
   }
 
   /* GRID */
-  .grid-quadrantes {
+.grid-quadrantes {
     margin-top: 25px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 280px));
+    justify-content: center;
     gap: 22px;
-    width: 95%;
+    width: 100%;
     max-width: 900px;
     align-items: start;
-  }
+}
 
   /* CARD */
-  .component-card {
-    background: white;
-    border-left: 6px solid #006d77;
-    border-radius: 16px;
-    padding: 18px;
-
-    display: flex;
-    flex-direction: column;
-
-    overflow: hidden;
-  }
-
-  /* IMAGEM */
   .component-card img {
     width: 100%;
     height: 180px;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
 
     display: block;
@@ -129,8 +117,24 @@
     border-radius: 12px;
     border: 2px solid #00c2c7;
     margin-bottom: 12px;
-  }
+    background: #f5f5f5;
+    padding: 8px;
+}
 
+  /* IMAGEM */
+  .component-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    object-position: center;
+
+    display: block;
+
+    border-radius: 12px;
+    border: 2px solid #00c2c7;
+    margin-bottom: 12px;
+    background: #f5f5f5;
+}
   .component-title {
     font-size: 18px;
     font-weight: 800;
@@ -153,7 +157,7 @@
 
   .btn {
     width: 100%;
-    margin-top: auto;
+    margin-top: 10px;
     background: #b7edea;
     color: #006d77;
     font-size: 15px;
@@ -162,12 +166,16 @@
     border-radius: 20px;
     border: 2px solid #006d77;
     cursor: pointer;
-  }
+}
 
-  .btn:hover {
-    background: #006d77;
-    color: white;
-  }
+.btn-delete {
+    margin-top: 8px;
+    background: #fff;
+    color: #b3261e;
+    border: 2px solid #b3261e;
+}
+
+
 
   /* RODAPÉ */
     footer {
@@ -199,6 +207,7 @@ if ($conexao->connect_error) {
         <nav class="menu-superior">
             <a href="index_adm.php">Início</a>
             <a href="painel_componentes.php" class="active">Componentes</a>
+            <a href="painel_historiccomp.php">Histórico</a>
             <a href="paineladm.html">Painel ADM</a>
             <a href="logout.php">Logout</a>
         </nav>
