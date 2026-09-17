@@ -186,6 +186,8 @@
         <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
         </div>
         <nav class="menu-superior">
+            <a href="index_adm.php">Início</a>
+            <a href="painel_usuarios.php" class="active">Usuários</a>
             <a href="paineladm.html">Painel ADM</a>
             <a href="logout.php">Logout</a>
         </nav>
