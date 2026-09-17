@@ -2,20 +2,19 @@
 session_start();
 include("config.php");
 
+$idUser = $_SESSION['iduser'];
 
 if (isset($_POST['remover'])) {
-
     $idCarrinho = $_POST['idcarrinho'];
 
     $sql = "DELETE FROM CARRINHO
-            WHERE IDCARRINHO = ?";
+            WHERE IDCARRINHO = ?
+            AND IDUSER = ?";
 
     $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("i", $idCarrinho);
+    $stmt->bind_param("ii", $idCarrinho, $idUser);
     $stmt->execute();
 }
-
-$idUser = $_SESSION['iduser'];
 
 $sql = "SELECT *
         FROM CARRINHO C
@@ -249,12 +248,12 @@ $result = $stmt->get_result();
             </div>
 
             <!-- GRID DE PRODUTOS -->
-            <form action="novopedido.php" method="POST" id="pedidoForm">
+            <form action="novopedido.php" method="POST" id="pedidoForm" onsubmit="return validarSelecao()">
                 <div class="products-grid">
                     <?php while($componente = $result->fetch_assoc()) { ?>
 
                     <div class="product-card horizontal-card" data-id="<?= $componente['IDCOMP'] ?>">
-                        <input class="checkout-button"type="checkbox"name="carrinho[]"value="<?= $componente['IDCARRINHO'] ?>"form="pedidoForm">
+                        <input class="checkout-button" type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>" form="pedidoForm" onchange="toggleSelection(this)">
                         <div class="product-image-horizontal">
                             <img src="componentes/<?= $componente['IMAGEM'] ?>" alt="<?= $componente['NOME'] ?>">
                         </div>
@@ -303,6 +302,16 @@ $result = $stmt->get_result();
             btn.disabled = count === 0;
         }
 
+        function validarSelecao() {
+            const selecionados = document.querySelectorAll('input[name="carrinho[]"]:checked');
+
+            if (selecionados.length === 0) {
+                alert("Selecione pelo menos um componente para criar um novo pedido.");
+                return false;
+            }
+
+            return true;
+        }
         function removerItem(idCarrinho) {
             if (confirm('Deseja realmente remover este item do carrinho?')) {
                 const form = document.createElement('form');
