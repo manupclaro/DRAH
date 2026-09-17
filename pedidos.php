@@ -196,7 +196,6 @@ function formatarDataBR($data) {
     .status-recus { background: #e74c3c; }
     .status-anda  { background: #f39c12; }
     .status-ana   { background: #9b59b6; }
-    .comprovante  { background: #ED5721; }
 
     .grid { 
         display: grid; 
@@ -208,7 +207,7 @@ function formatarDataBR($data) {
     label { 
         display: block; 
         font-size: 13px; 
-        color: #6b6b6b; 
+        color: #666; 
         margin-bottom: 4px; 
         font-weight: 600;
     }
@@ -217,8 +216,8 @@ function formatarDataBR($data) {
         font-size: 14px; 
         padding: 10px; 
         border-radius: 8px; 
-        background: #fafafa; 
-        border: 1px solid #eee; 
+        background: white; 
+        border: 1px solid #999; 
         min-height: 40px; 
     }
 
