@@ -1,3 +1,33 @@
+<?php
+session_start();
+include("config.php");
+
+$idUser = $_SESSION['iduser'];
+
+if (isset($_POST['remover'])) {
+    $idCarrinho = $_POST['idcarrinho'];
+
+    $sql = "DELETE FROM CARRINHO
+            WHERE IDCARRINHO = ?
+            AND IDUSER = ?";
+
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("ii", $idCarrinho, $idUser);
+    $stmt->execute();
+}
+
+$sql = "SELECT *
+        FROM CARRINHO C
+        INNER JOIN COMPONENTE CP
+        ON C.IDCOMP = CP.IDCOMP
+        WHERE C.IDUSER = ?";
+
+$stmt = $conexao->prepare($sql);
+$stmt->bind_param("i", $idUser);
+$stmt->execute();
+
+$result = $stmt->get_result();
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -143,7 +173,7 @@
 }
 
 /* BOTÃO REMOVER */
-.product-badge {
+.product-x {
     position: absolute;
     right: 10px;
     top: 10px;
@@ -153,6 +183,7 @@
     border-radius: 50%;
     width: 30px;
     height: 30px;
+    cursor: pointer;
 }
 
 /* CHECKOUT */
@@ -217,108 +248,36 @@
             </div>
 
             <!-- GRID DE PRODUTOS -->
-            <div class="products-grid" id="productsGrid">
-                
-                <!-- CARD LATERAL 1 -->
-                <div class="product-card horizontal-card" data-id="1">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\ledverde (1).png"
-                             alt="Imagem do LED"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Eletrônicos</span>
-                        <div class="product-title">LED - Verde</div>
-                        <div class="product-description">Led verde.</div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>2</b></div>
+            <form action="novopedido.php" method="POST" id="pedidoForm" onsubmit="return validarSelecao()">
+                <div class="products-grid">
+                    <?php while($componente = $result->fetch_assoc()) { ?>
+
+                    <div class="product-card horizontal-card" data-id="<?= $componente['IDCOMP'] ?>">
+                        <input class="checkout-button" type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>" form="pedidoForm" onchange="toggleSelection(this)">
+                        <div class="product-image-horizontal">
+                            <img src="componentes/<?= $componente['IMAGEM'] ?>" alt="<?= $componente['NOME'] ?>">
                         </div>
+
+                        <div class="product-content-horizontal">
+                            <span class="product-category"><?= $componente['CATEGORIA'] ?></span>
+                            <div class="product-title"><?= $componente['NOME'] ?></div>
+                            <div class="product-description"><?= $componente['DESCRICAO'] ?></div>
+                            <div>Estoque:<b><?= $componente['QUANTIDADE'] ?></b></div>
+                        </div>
+                        <!-- X -->
+                        <button type="button" class="product-x" onclick="removerItem(<?= $componente['IDCARRINHO'] ?>)">X</button>
                     </div>
+                    <?php } ?>
                 </div>
 
-                <!-- CARD LATERAL 2 -->
-                <div class="product-card horizontal-card" data-id="2">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
+                <div class="checkout-container">
+                    <div class="checkout-info">
+                        <span id="selectedCount">0</span> itens selecionados
                     </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\cabosata (1).jpeg" 
-                             alt="Imagem do Cabo SATA"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Cabos</span>
-                        <div class="product-title">Cabo Sata Serial Ata, Sata 3gb/s Cor Vermelho</div>
-                        <div class="product-description">Cabo sata.</div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>1</b></div>
-                        </div>
-                    </div>
+                    <button type="submit" class="checkout-button" id="checkout">🛒 Novo Pedido</button>
                 </div>
-
-                <!-- CARD LATERAL 3 -->
-                <div class="product-card horizontal-card" data-id="3">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\arduino (1).png" 
-                             alt="Imagem do Arduíno"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Eletrônicos</span>
-                        <div class="product-title">Arduino Uno R3 Smd</div>
-                        <div class="product-description">
-                            O Arduino Uno R3 é uma placa de prototipagem eletrônica baseada no microcontrolador ATmega328P, amplamente utilizada para projetos de eletrônica e programação.
-                        </div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>3</b></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CARD LATERAL 4 -->
-                <div class="product-card horizontal-card" data-id="4">
-                    <div class="product-checkbox-container">
-                        <input type="checkbox" class="product-checkbox" onchange="toggleSelection(this)">
-                    </div>
-                    <button class="product-badge" onclick="removeItem(this)">×</button>
-                    <div class="product-image-horizontal">
-                        <img src="c:\Users\breno\Downloads\processador.png" 
-                             alt="Imagem do Processador"
-                             style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-                    </div>
-                    <div class="product-content-horizontal">
-                        <span class="product-category">Processadores</span>
-                        <div class="product-title">Intel Core i7-12700K</div>
-                        <div class="product-description">
-                            Processador de 12ª geração com 12 núcleos e 20 threads, ideal para workstations.
-                        </div>
-                        <div class="product-meta">
-                            <div>Estoque: <b>1</b></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- BOTÃO DE FINALIZAR PEDIDO -->
-            <div class="checkout-container">
-                <div class="checkout-info">
-                    <span id="selectedCount">0</span> itens selecionados
-                </div>
-                <button class="checkout-button" id="checkoutBtn" onclick="finalizarPedido()" disabled>
-                    🛒 Fazer Pedido
-                </button>
-            </div>
-                <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
+            </form>
+            <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
         </main>
     </div>
 
@@ -334,46 +293,70 @@
         }
 
         function updateCheckoutButton() {
-            const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+            const checkboxes = document.querySelectorAll('.checkout-button:checked');
             const count = checkboxes.length;
-            const btn = document.getElementById('checkoutBtn');
+            const btn = document.getElementById('checkout');
             const countDisplay = document.getElementById('selectedCount');
             
             countDisplay.textContent = count;
             btn.disabled = count === 0;
         }
 
-        function removeItem(button) {
+        function validarSelecao() {
+            const selecionados = document.querySelectorAll('input[name="carrinho[]"]:checked');
+
+            if (selecionados.length === 0) {
+                alert("Selecione pelo menos um componente para criar um novo pedido.");
+                return false;
+            }
+
+            return true;
+        }
+        function removerItem(idCarrinho) {
             if (confirm('Deseja realmente remover este item do carrinho?')) {
-                const card = button.closest('.horizontal-card');
-                setTimeout(() => {
-                    card.remove();
-                    updateCheckoutButton();
-                }, 300);
+                const form = document.createElement('form');
+                form.method = 'POST';
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'idcarrinho';
+                input.value = idCarrinho;
+
+                const button = document.createElement('input');
+                button.type = 'hidden';
+                button.name = 'remover';
+                button.value = '1';
+
+                form.appendChild(input);
+                form.appendChild(button);
+
+                document.body.appendChild(form);
+                form.submit();
             }
         }
 
         function finalizarPedido() {
             const selected = document.querySelectorAll('.product-checkbox:checked');
+
             if (selected.length === 0) {
-                alert('Selecione pelo menos um item para fazer o pedido!');
+                alert('Selecione pelo menos um item!');
                 return;
             }
 
-            const items = [];
+            const itens = [];
+
             selected.forEach(checkbox => {
                 const card = checkbox.closest('.horizontal-card');
-                const title = card.querySelector('.product-title').textContent;
-                items.push(title);
+
+                itens.push({
+                    id: card.dataset.id,
+                    nome: card.querySelector('.product-title').textContent
+                });
             });
 
-            alert(`Pedido realizado com sucesso!\n\nItens selecionados:\n${items.map((item, i) => `${i + 1}. ${item}`).join('\n')}`);
-            
-            // Remover itens selecionados após o pedido
-            selected.forEach(checkbox => {
-                checkbox.closest('.horizontal-card').remove();
-            });
-            updateCheckoutButton();
+            localStorage.setItem("itensPedido", JSON.stringify(itens));
+
+            window.location.href = "novopedido.php";
         }
 
         function buscar() {

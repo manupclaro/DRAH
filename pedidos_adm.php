@@ -3,18 +3,20 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Verifica se há sessão ativa e se o usuário logado possui permissão de ADM
-// (Ajuste o nome da chave de sessão conforme a sua tela de login do ADM)
-if (!isset($_SESSION['id_user']) || empty($_SESSION['is_adm'])) {
-    header("Location: logindrah.html");
-    exit;
+// Suporte para diferentes nomes de variáveis de sessão
+$id_usuario_logado = $_SESSION['id_user'] ?? $_SESSION['iduser'] ?? $_SESSION['usuario_id'] ?? null;
+
+// Verifica se o usuário está logado
+if (!$id_usuario_logado) {
+    header("Location: login.php");
+    exit();
 }
 
 // Configuração de Conexão com o Banco de Dados
 $host     = 'localhost';
 $dbname   = 'DRAH';
 $username = 'root';
-$password = ''; // Sua senha do MySQL aqui
+$password = ''; // Coloque sua senha do MySQL se houver
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
@@ -24,24 +26,23 @@ try {
     die("Erro ao conectar ao banco de dados: " . $e->getMessage());
 }
 
-// Consulta SQL para ADM: busca TODOS os pedidos do sistema e inclui o NOME do usuário solicitante
+// Consulta SQL que busca os pedidos do usuário e lista os componentes de cada um
 $sql = "SELECT 
             p.*,
-            u.NOME AS NOME_USUARIO,
             GROUP_CONCAT(c.NOME SEPARATOR ', ') AS COMPONENTES_LISTA,
             SUM(pc.QUANTIDADE) AS TOTAL_ITENS
         FROM PEDIDO p
-        INNER JOIN USUARIO u ON p.IDUSER = u.IDUSER
         LEFT JOIN PEDIDO_COMP pc ON p.IDPEDIDO = pc.IDPEDIDO
         LEFT JOIN COMPONENTE c ON pc.IDCOMP = c.IDCOMP
+        WHERE p.IDUSER = :id_user
         GROUP BY p.IDPEDIDO
         ORDER BY p.DATA_PEDIDO DESC";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute();
+$stmt->execute(['id_user' => $id_usuario_logado]);
 $pedidos = $stmt->fetchAll();
 
-// Dicionário de classes CSS de status
+// Dicionário de cores para as etiquetas de status
 $status_classes = [
     'Aprovado'   => 'status-aprov',
     'Devolvido'  => 'status-dev',
@@ -132,16 +133,13 @@ function formatarDataBR($data) {
     }
 
     .wrap {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
+      max-width: 920px;
+      margin: 0 auto 40px auto;
+      padding: 0 20px;
     }
 
     .card {
       width: 100%;
-      max-width: 920px;
       background: #ffffff;
       border-radius: 16px;
       padding: 28px;
@@ -150,7 +148,14 @@ function formatarDataBR($data) {
       gap: 20px;
     }
 
-    h1 { margin: 0; font-size: 24px; text-align: center; }
+    h1 { 
+        margin: 0; 
+        font-size: 24px; 
+        text-align: center;
+        color: #006d77;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #b7edea;
+    }
 
     .pedido {
       background: white;
@@ -159,53 +164,65 @@ function formatarDataBR($data) {
       padding: 20px;
     }
 
-    /* header com badges agrupados à direita */
-    .pedido-header { display: flex; align-items: center; margin-bottom: 14px; }
-    .pedido-header strong { font-weight: 700; }
+    .pedido-header { 
+        display: flex; 
+        align-items: center; 
+        margin-bottom: 14px; 
+    }
+    .pedido-header strong { 
+        font-weight: 700; 
+        font-size: 16px;
+    }
 
-    /* badges separadas, alinhadas à direita e com divisória */
     .badges {
-      margin-left: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .badges span {
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: white;
-      border-radius: 10px;
-      position: relative;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: white;
+        border-radius: 10px;
     }
 
-    /* divisória entre as labels */
-    .badges span:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      right: -4px;
-      top: 50%;
-      width: 2px;
-      height: 18px;
-      background: #999;
-      border-radius: 2px;
-      transform: translateY(-50%);
+    /* Cores de status */
+    .status-dev   { background: #4a90e2; }
+    .status-aprov { background: #2ecc71; }
+    .status-recus { background: #e74c3c; }
+    .status-anda  { background: #f39c12; }
+    .status-ana   { background: #9b59b6; }
+
+    .grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; 
+        gap: 14px; 
+        margin-top: 10px; 
     }
 
-    /* cores específicas */
-    .status-dev   { background: cornflowerblue; }
-    .status-aprov { background: mediumseagreen; }
-    .status-recus { background: tomato; }
-    .status-anda  { background: rgb(255, 185, 99); }
-    .status-ana   { background: violet; }
-    .comprovante  { background: #ED5721; }
+    label { 
+        display: block; 
+        font-size: 13px; 
+        color: #666; 
+        margin-bottom: 4px; 
+        font-weight: 600;
+    }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
-    label { display: block; font-size: 13px; color: #6b6b6b; margin-bottom: 4px; }
-    .info { font-size: 15px; padding: 10px; border-radius: 10px; background: #fafafa; border: 1px solid #eee; min-height: 40px; }
+    .info { 
+        font-size: 14px; 
+        padding: 10px; 
+        border-radius: 8px; 
+        background: white; 
+        border: 1px solid #999; 
+        min-height: 40px; 
+    }
 
-    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 700px) { 
+        .grid { grid-template-columns: 1fr; } 
+    }
 
     footer {
         bottom: 15px;
@@ -233,14 +250,14 @@ function formatarDataBR($data) {
     </nav>
   </header>
   
-  <!-- FRONT-END-->
+  <!-- Conteúdo Principal -->
   <div class="wrap">
     <section class="card">
-      <h1>Meus Pedidos - Administração</h1>
+      <h1>Meus Pedidos</h1>
 
       <?php if (empty($pedidos)): ?>
-          <p style="text-align:center; color: #666; padding: 30px;">
-            Nenhum pedido foi registrado no sistema até o momento.
+          <p style="text-align:center; color: #666; padding: 40px 0;">
+            Você ainda não realizou nenhum pedido ou reserva.
           </p>
       <?php else: ?>
           <?php foreach ($pedidos as $pedido): 
@@ -248,9 +265,9 @@ function formatarDataBR($data) {
           ?>
               <div class="pedido">
                 <div class="pedido-header">
-                  <strong>Pedido #<?= sprintf('%04d', $pedido['IDPEDIDO']) ?> &mdash; <?= htmlspecialchars($pedido['NOME_USUARIO'] ?? 'Usuário ID: ' . $pedido['IDUSER']) ?></strong>
+                  <strong>Pedido #<?= sprintf('%04d', $pedido['IDPEDIDO']) ?></strong>
 
-                  <div class="badges" aria-hidden="true">
+                  <div class="badges">
                     <span class="<?= $classe_status ?>"><?= htmlspecialchars($pedido['STATUSPEDIDO']) ?></span>
                     
                     <?php if ($pedido['STATUSPEDIDO'] === 'Devolvido'): ?>
@@ -292,7 +309,7 @@ function formatarDataBR($data) {
                     <label>Justificativa</label>
                     <div class="info"><?= htmlspecialchars($pedido['JUSTIFICATIVA'] ?? '—') ?></div>
                   </div>
-                  <div>
+                  <div style="grid-column: span 2;">
                     <label>Observações</label>
                     <div class="info"><?= htmlspecialchars($pedido['OBSERVACOES'] ?? 'Nenhuma observação registrada.') ?></div>
                   </div>
@@ -302,7 +319,9 @@ function formatarDataBR($data) {
       <?php endif; ?>
 
     </section>
+
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
-  <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
+
 </body>
 </html>
