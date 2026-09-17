@@ -42,332 +42,224 @@ $resultado = $conexao->query($sql);
 
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Componentes | DRAH</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-<title>Histórico de Componentes | DRAH</title>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #b7edea;
+        color: #333;
+        min-height: 100vh;
+        padding-top: 80px;
+    }
 
-<style>
+    /* HEADER */
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        background: #006d77;
+        z-index: 1000;
+    }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    .logo img {
+        height: 50px;
+    }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #b7edea;
-    color: #333;
-    min-height: 100vh;
-    padding-top: 80px;
-}
+    .menu-superior {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
 
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 80px;
+    .menu-superior a {
+        background: #00c2c7;
+        color: white;
+        padding: 10px 22px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-decoration: none;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    .menu-superior a:hover { background: #006d77; }
+    .menu-superior a.active {
+        background: white;
+        color: #006d77;
+    }
 
-    padding: 0 32px;
+        /* CONTAINER */
+    .container {
+        background: #E5FFFA;
+        min-height: calc(100vh - 80px);
+        padding: 30px 20px;
+    }
 
-    background: #006d77;
+    .content {
+        width: 95%;
+        max-width: 1100px;
+        margin: auto;
+    }
 
-    z-index: 1000;
-}
+    h2 {
+        color: #006d77;
+        margin-bottom: 20px;
+    }
 
-.logo img {
-    height: 50px;
-}
+    .tabela-container {
+        background: white;
+        border-left: 6px solid #00c2c7;
+        border-radius: 16px;
+        padding: 20px;
+        overflow-x: auto;
+    }
 
-.menu-superior {
-    display: flex;
-    gap: 15px;
-}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-.menu-superior a {
-    background: #00c2c7;
-    color: white;
+    th {
+        background: #006d77;
+        color: white;
+        padding: 12px;
+        text-align: left;
+    }
 
-    padding: 10px 22px;
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
 
-    border-radius: 20px;
+    tr:hover {
+        background: #f1ffff;
+    }
 
-    font-weight: 600;
+    .entrada {
+        color: #248a43;
+        font-weight: bold;
+    }
 
-    text-decoration: none;
-}
+    .saida {
+        color: #c62828;
+        font-weight: bold;
+    }
 
-.container {
-    background: #E5FFFA;
-    min-height: calc(100vh - 80px);
+    .justificativa {
+        max-width: 350px;
+    }
 
-    padding: 30px 20px;
-}
+    .voltar {
+        display: inline-block;
+        margin-bottom: 20px;
+        background: #006d77;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+    }
 
-.content {
-    width: 95%;
-    max-width: 1100px;
-
-    margin: auto;
-}
-
-h2 {
-    color: #006d77;
-    margin-bottom: 20px;
-}
-
-.tabela-container {
-    background: white;
-
-    border-left: 6px solid #00c2c7;
-
-    border-radius: 16px;
-
-    padding: 20px;
-
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th {
-    background: #006d77;
-    color: white;
-    padding: 12px;
-    text-align: left;
-}
-
-td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
-
-tr:hover {
-    background: #f1ffff;
-}
-
-.entrada {
-    color: #248a43;
-    font-weight: bold;
-}
-
-.saida {
-    color: #c62828;
-    font-weight: bold;
-}
-
-.justificativa {
-    max-width: 350px;
-}
-
-.voltar {
-    display: inline-block;
-
-    margin-bottom: 20px;
-
-    background: #006d77;
-    color: white;
-
-    padding: 10px 20px;
-
-    border-radius: 20px;
-
-    text-decoration: none;
-}
-
-footer {
-    text-align: center;
-
-    font-size: 12px;
-
-    color: #666;
-
-    margin: 25px;
-}
-
-</style>
-
+    footer {
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+        margin: 25px;
+    }
+    </style>
 </head>
 
 <body>
+<!-- HEADER -->
+    <header>
+        <div class="logo">
+            <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+        </div>
+        <nav class="menu-superior">
+            <a href="index_adm.php">Início</a>
+            <a href="painel_componentes.php">Componentes</a>
+            <a href="painel_historiccomp.php" class="active">Histórico</a>
+            <a href="paineladm.html">Painel ADM</a>
+            <a href="logout.php">Logout</a>
+        </nav>
+    </header>
 
-<header>
-
-    <div class="logo">
-        <img src="imagens/logo_branco.png" alt="Logo">
-    </div>
-
-    <div class="menu-superior">
-        <a href="index_adm.php">Início</a>
-        <a href="painel_componentes.php">Componentes</a>
-    </div>
-
-</header>
-
-<div class="container">
-
-<div class="content">
-
-    <?php if ($id > 0): ?>
-
-        <a
-            href="editarcomp.php?id=<?php echo $id; ?>"
-            class="voltar">
-            ← Voltar para edição
-        </a>
-
-        <h2>
-            Histórico: <?php echo htmlspecialchars($componente['NOME']); ?>
-        </h2>
-
-    <?php else: ?>
-
-        <h2>Histórico de movimentações</h2>
-
-    <?php endif; ?>
-
-
-    <div class="tabela-container">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <?php if ($id == 0): ?>
-                        <th>Componente</th>
-                    <?php endif; ?>
-
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Quantidade</th>
-                    <th>Justificativa</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            <?php if ($resultado->num_rows > 0): ?>
-
-                <?php while ($registro = $resultado->fetch_assoc()): ?>
-
-                    <tr>
-
-                        <?php if ($id == 0): ?>
-
-                            <td>
-                                <?php
-                                echo htmlspecialchars(
-                                    $registro['NOME']
-                                );
-                                ?>
-                            </td>
-
-                        <?php endif; ?>
-
-                        <td>
-                            <?php
-                            echo date(
-                                'd/m/Y H:i',
-                                strtotime($registro['DATAHORA'])
-                            );
-                            ?>
-                        </td>
-
-                        <td>
-
-                            <?php if ($registro['TIPO'] == 'ENTRADA'): ?>
-
-                                <span class="entrada">
-                                    ↑ ENTRADA
-                                </span>
-
-                            <?php else: ?>
-
-                                <span class="saida">
-                                    ↓ SAÍDA
-                                </span>
-
-                            <?php endif; ?>
-
-                        </td>
-
-                        <td>
-
-                            <?php
-                            echo $registro['QUANTIDADE'];
-                            ?>
-
-                        </td>
-
-                        <td class="justificativa">
-
-                            <?php
-
-                            if (!empty($registro['JUSTIFICATIVA'])) {
-
-                                echo htmlspecialchars(
-                                    $registro['JUSTIFICATIVA']
-                                );
-
-                            } else {
-
-                                echo "<span style='color:#999'>
-                                        Sem justificativa
-                                      </span>";
-                            }
-
-                            ?>
-
-                        </td>
-
-                    </tr>
-
-                <?php endwhile; ?>
-
+    <div class="container">
+        <div class="content">
+            <?php if ($id > 0): ?>
+            <a href="editarcomp.php?id=<?php echo $id; ?>" class="voltar"> ← Voltar para edição</a>
+            <h2>Histórico: <?php echo htmlspecialchars($componente['NOME']); ?></h2>
             <?php else: ?>
-
-                <tr>
-
-                    <td
-                        colspan="<?php echo $id > 0 ? 4 : 5; ?>"
-                        style="text-align:center;padding:30px;"
-                    >
-                        Nenhuma movimentação registrada.
-                    </td>
-
-                </tr>
-
+            <h2>Histórico de movimentações</h2>
             <?php endif; ?>
 
-            </tbody>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <?php if ($id == 0): ?>
+                            <th>Componente</th>
+                            <?php endif; ?>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Justificativa</th>
+                        </tr>
+                    </thead>
 
-        </table>
+                    <tbody>
+                        <?php if ($resultado->num_rows > 0): ?>
+                        <?php while ($registro = $resultado->fetch_assoc()): ?>
+                        <tr>
+                            <?php if ($id == 0): ?>
+                            <td><?php echo htmlspecialchars($registro['NOME']); ?></td>
+                            <?php endif; ?>
 
+                            <td><?php echo date('d/m/Y H:i', strtotime($registro['DATAHORA'])); ?></td>
+
+                            <td><?php if ($registro['TIPO'] == 'ENTRADA'): ?>
+                                <span class="entrada">↑ ENTRADA</span>
+                                <?php else: ?>
+                                <span class="saida">↓ SAÍDA</span>
+                                <?php endif; ?>
+                            </td>
+
+                            <td><?php echo $registro['QUANTIDADE']; ?></td>
+
+                            <td class="justificativa">
+                                <?php if (!empty($registro['JUSTIFICATIVA'])) {
+                                    echo htmlspecialchars($registro['JUSTIFICATIVA']);
+                                } else {
+                                    echo "<span style='color:#999'>Sem justificativa</span>";
+                                } ?>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                        <?php else: ?>
+                        <tr>
+                            <td colspan="<?php echo $id > 0 ? 4 : 5; ?>" style="text-align:center;padding:30px;">
+                                Nenhuma movimentação registrada.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
     </div>
-
-</div>
-
-<footer>
-    Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware
-</footer>
-
-</div>
-
 </body>
 </html>
