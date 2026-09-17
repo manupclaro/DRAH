@@ -61,6 +61,11 @@
     background: #006d77;
   }
 
+  .menu-superior a.active {
+        background: white;
+        color: #006d77;
+    }
+
   /* CONTAINER */
   .container {
     width: 100%;
@@ -186,19 +191,18 @@ if ($conexao->connect_error) {
 </head>
 
 <body>
-
-<header>
-  <div class="logo">
-    <a href="index_adm.php">
-      <img src="imagens/logo_branco.png">
-    </a>
-  </div>
-
-  <nav class="menu-superior">
-    <a href="paineladm.html">Painel ADM</a>
-    <a href="logout.php">Logout</a>
-  </nav>
-</header>
+<!-- HEADER -->
+    <header>
+        <div class="logo">
+        <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+        </div>
+        <nav class="menu-superior">
+            <a href="index_adm.php">Início</a>
+            <a href="painel_componentes.php" class="active">Componentes</a>
+            <a href="paineladm.html">Painel ADM</a>
+            <a href="logout.php">Logout</a>
+        </nav>
+  </header>
 
 <div class="container">
 

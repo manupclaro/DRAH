@@ -227,7 +227,8 @@ function formatarDataBR($data) {
       <a href="index_adm.php">Início</a>
       <a href="perfil_adm.php">Perfil</a> 
       <a href="pedidos_adm.php" class="active">Meus Pedidos</a> 
-      <a href="carrinho_adm.php">Carrinho</a> 
+      <a href="carrinho_adm.php">Carrinho</a>
+      <a href="paineladm.html">Painel ADM</a>
       <a href="logout.php">Logout</a>  
     </nav>
   </header>

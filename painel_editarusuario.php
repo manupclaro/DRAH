@@ -70,6 +70,11 @@
         background: #006d77;
     }
 
+    .menu-superior a.active {
+        background: white;
+        color: #006d77;
+    }
+
   /* CONTEÚDO */
   .container {
     width: 100%;

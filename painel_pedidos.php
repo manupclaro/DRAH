@@ -220,16 +220,18 @@ $result = mysqli_query($conexao, $sql);
 </style>
 </head>
 <body>
-    <!-- HEADER -->
+<!-- HEADER -->
     <header>
         <div class="logo">
         <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
         </div>
         <nav class="menu-superior">
+            <a href="index_adm.php">Início</a>
+            <a href="painel_pedidos.php" class="active">Pedidos</a>
             <a href="paineladm.html">Painel ADM</a>
             <a href="logout.php">Logout</a>
         </nav>
-    </header>
+  </header>
 
 <!-- SUB NAV -->
 <div class="subnav">

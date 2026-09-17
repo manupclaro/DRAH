@@ -75,6 +75,11 @@ include "listar_adm.php";
         background: #006d77;
     }
 
+    .menu-superior a.active {
+        background: white;
+        color: #006d77;
+    }
+
   /* CONTAINER */
   .container {
     width: 100%;

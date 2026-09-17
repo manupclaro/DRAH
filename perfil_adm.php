@@ -83,85 +83,56 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       padding-top: 80px;
     }
 
+    /* HEADER */
     header {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      background: #006d77;
-      border-bottom: 1px solid rgba(0,0,0,0.08);
-      z-index: 1000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        background: #006d77;
+        z-index: 1000;
     }
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-left: 50px;
-    }
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }  
 
     .logo img {
-      height: 60px;
-      width: auto;
-      display: block;
+        height: 50px;
+        width: auto;
+        display: block;
     }
 
     .menu-superior {
-      display: flex;
-      gap: 15px;
-      align-items: center;
+        display: flex;
+        gap: 15px;
+        align-items: center;
     }
 
     .menu-superior a {
-      background: #00626d;
-      color: white;
-      border: none;
-      padding: 10px 22px;
-      border-radius: 20px;
-      font-weight: 600;
-      text-decoration: none !important;
+        background: #00c2c7;
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-decoration: none !important;
     }
 
     .menu-superior a:hover {
-      background: #004f57;
-      transform: translateY(-2px);
+        background: #006d77;
     }
 
     .menu-superior a.active {
-      background: white;
-      color: #006d77;
-    }
-
-    .back-arrow {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .back-arrow:hover {
-      background: rgba(255,255,255,0.3);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .back-arrow::before {
-      content: '←';
-      font-size: 24px;
-      color: white;
-      font-weight: bold;
+        background: white;
+        color: #006d77;
     }
 
     .wrap {
@@ -292,20 +263,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </style>
 </head>
 <body>
-
+  <!-- HEADER -->
   <header>
-    <a href="index_adm.php" class="back-arrow" title="Voltar"></a>
     <div class="logo">
-      <a href="index_adm.php">
-        <img src="imagens/logo_branco.png" alt="Logo DRAH">
-      </a>
+      <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
     </div>
     <nav class="menu-superior">
-      <a href="perfil_adm.php" class="active">Perfil</a>
-      <a href="pedidos_adm.php">Seus Pedidos</a>
+      <a href="index_adm.php">Início</a>
+      <a href="perfil_adm.php" class="active">Perfil</a> 
+      <a href="pedidos_adm.php">Meus Pedidos</a> 
       <a href="carrinho_adm.php">Carrinho</a>
-      <a href="painel_adm.php">Painel ADM</a>
-      <a href="logout.php">Sair</a>
+      <a href="paineladm.html">Painel ADM</a>
+      <a href="logout.php">Logout</a>
     </nav>
   </header>
 

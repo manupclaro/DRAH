@@ -80,52 +80,56 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     /* HEADER */
     header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      background: #ED5721;
-      z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        background: #ED5721;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }  
 
     .logo img {
-      height: 50px;
-      width: auto;
-      display: block;
+        height: 50px;
+        width: auto;
+        display: block;
     }
 
     .menu-superior {
-      display: flex;
-      gap: 15px;
-      align-items: center;
+        display: flex;
+        gap: 15px;
+        align-items: center;
     }
 
     .menu-superior a {
-      background: #ff7f50;
-      color: white;
-      border: none;
-      padding: 10px 22px;
-      border-radius: 20px;
-      font-weight: 600;
-      text-decoration: none !important;
-      transition: background 0.2s;
+        background: #ff7f50;
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: background 0.2s;
     }
 
-    .menu-superior a:hover,
+    .menu-superior a:hover {
+        background: #c94415;
+    }
+
     .menu-superior a.active {
-      background: #c94415;
+        background: white;
+        color: #ED5721;
     }
 
     /* CARD CENTRAL DO PERFIL */
@@ -308,20 +312,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </style>
 </head>
 <body>
-
   <!-- HEADER -->
   <header>
-    <a href="index_padrao.php" class="back-arrow" title="Voltar"></a>
     <div class="logo">
-      <a href="index_padrao.php">
-        <img src="imagens/logo_branco.png" alt="Logo DRAH">
-      </a>
+      <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
     </div>
     <nav class="menu-superior">
-      <a href="perfil.php" class="active">Perfil</a>
-      <a href="pedidos.php">Meus Pedidos</a>
-      <a href="carrinho.php">Carrinho</a>
-      <a href="logout.php">Sair</a>
+      <a href="index_padrao.php">Início</a>
+      <a href="perfil.php" class="active">Perfil</a> 
+      <a href="pedidos.php">Meus Pedidos</a> 
+      <a href="carrinho.php">Carrinho</a> 
+      <a href="logout.php">Sair</a>  
     </nav>
   </header>
 

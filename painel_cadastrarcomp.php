@@ -70,6 +70,11 @@
         background: #006d77;
     }
 
+    .menu-superior a.active {
+        background: white;
+        color: #006d77;
+    }
+
   /* CONTAINER FORM */
   .container {
     width: 100%;
@@ -172,6 +177,7 @@
         <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
         </div>
         <nav class="menu-superior">
+            <a href="index_adm.php">Início</a>
             <a href="painel_componentes.php">Componentes</a>
             <a href="paineladm.html">Painel ADM</a>
             <a href="logout.php">Logout</a>
