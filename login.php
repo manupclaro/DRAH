@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Busca o usuário pelo CPF na tabela USUARIO
         $query = "SELECT IDUSER, NOME, SENHA, TIPOUSUA FROM USUARIO WHERE CPF = ? LIMIT 1";
         $stmt  = $conn->prepare($query);
-    }
+
         // Verifica se o prepare() funcionou
         if (!$stmt) {
             $erro = "Erro interno ao preparar consulta: " . $conn->error;
@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->bind_param("s", $cpf);
             $stmt->execute();
             $result = $stmt->get_result();
-        }
+
             if ($result->num_rows === 1) {
                 $dados = $result->fetch_assoc();
 
@@ -74,26 +74,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_SESSION["usuario"]     = $dados["NOME"];
                     $_SESSION["tipo"]        = $dados["TIPOUSUA"];
 
-if ($dados["TIPOUSUA"] == 1) {
-    header("Location: index_adm.php");
-} else {
-    header("Location: index_padrao.php");
-}
+                    if ($dados["TIPOUSUA"] == 1) {
+                        header("Location: index_adm.php");
+                    } else {
+                        header("Location: index_padrao.php");
+                    }
 
-exit(); }
-else {
+                    exit();
+                } else {
                     $erro = "Senha incorreta.";
                 }
             } else {
                 $erro = "CPF não encontrado.";
             }
-
-          
-      
+        }
     }
-  
-
- 
 
     // Se houver erro, volta para o HTML com a mensagem na URL
     if (!empty($erro)) {
@@ -101,8 +96,9 @@ else {
         exit();
     }
 
-if (isset($stmt)) {
-    $stmt->close();
+    if (isset($stmt)) {
+        $stmt->close();
+    }
 }
 
 $conn->close();

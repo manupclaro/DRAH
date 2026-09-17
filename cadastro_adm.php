@@ -137,7 +137,13 @@
         <input type="text" id="nome" name="nome" required>
 
         <label for="cpf">CPF</label>
-        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
+        <input type="text" id="cpf" name="cpf" placeholder="Somente números" maxlength="11" pattern="\d{11}" title="Digite os 11 números do CPF, sem pontos ou traço" inputmode="numeric" required>
+
+              <script>
+                  document.getElementById('cpf').addEventListener('input', function(e) {
+                     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
+                      });
+                 </script>
 
         <label for="email">E-mail</label>
         <input type="email" id="email" name="email" placeholder="xxxx@xxx.xxx" required>
@@ -146,7 +152,7 @@
         <input type="tel" id="telefone" name="telefone" placeholder="55987654321" pattern="\d{10,11}" required>
 
         <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" required>
+        <input type="password" id="senha" name="senha" minlength="6" pattern="(?=.*[A-Za-z])(?=.*\d).{6,}" title="A senha deve ter no mínimo 6 caracteres, incluindo letras e números" required>
 
         <label for="codigoadm">Código de Validação (Administrador)</label>
         <input type="text" id="codigoadm" name="codigoadm" required>
