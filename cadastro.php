@@ -144,14 +144,46 @@
                      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
                       });
                  </script>
-        <label for="email">E-mail</label>
-        <input type="email" id="email" name="email" placeholder="xxxx@xxx.xxx" required>
+        <label for="email">E-mail institucional</label>
+        <input type="email" id="email" name="email" placeholder="seunome@iffar.edu.br" pattern="^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$" title="Use um e-mail institucional: @iffar.edu.br ou @iffarroupilha.edu.br" required>
+        <small id="emailAviso" style="color:#b30000; display:none; font-size:13px;">O e-mail deve ser @iffar.edu.br ou @iffarroupilha.edu.br</small>
 
         <label for="telefone">Telefone</label>
         <input type="tel" id="telefone" name="telefone" placeholder="55987654321" pattern="\d{10,11}" required>
 
         <label for="senha">Senha</label>
         <input type="password" id="senha" name="senha" minlength="6" pattern="(?=.*[A-Za-z])(?=.*\d).{6,}" title="A senha deve ter no mínimo 6 caracteres, incluindo letras e números" required>
+
+        <label for="confirmarSenha">Confirmar senha</label>
+        <input type="password" id="confirmarSenha" name="confirmarSenha" minlength="6" placeholder="Digite a senha novamente" required>
+        <small id="senhaAviso" style="color:#b30000; display:none; font-size:13px;">As senhas não coincidem</small>
+
+        <script>
+          (function() {
+            var email = document.getElementById('email');
+            var emailAviso = document.getElementById('emailAviso');
+            var senha = document.getElementById('senha');
+            var confirmarSenha = document.getElementById('confirmarSenha');
+            var senhaAviso = document.getElementById('senhaAviso');
+            var dominioRegex = /^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$/i;
+
+            function validarEmail() {
+              var valido = dominioRegex.test(email.value);
+              emailAviso.style.display = (email.value.length > 0 && !valido) ? 'block' : 'none';
+              email.setCustomValidity(valido || email.value.length === 0 ? '' : 'E-mail deve ser @iffar.edu.br ou @iffarroupilha.edu.br');
+            }
+
+            function validarSenhas() {
+              var iguais = senha.value === confirmarSenha.value;
+              senhaAviso.style.display = (confirmarSenha.value.length > 0 && !iguais) ? 'block' : 'none';
+              confirmarSenha.setCustomValidity(iguais ? '' : 'As senhas não coincidem');
+            }
+
+            email.addEventListener('input', validarEmail);
+            senha.addEventListener('input', validarSenhas);
+            confirmarSenha.addEventListener('input', validarSenhas);
+          })();
+        </script>
 
          <div class="termos-box">
     <h3>Termos de Uso e Responsabilidade</h3>

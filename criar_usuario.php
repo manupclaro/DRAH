@@ -6,14 +6,38 @@ $email    = trim($_POST['email']    ?? "");
 $cpf      = preg_replace('/\D/', '', $_POST['cpf']      ?? ""); // salva só números pq esse caralho tava dando errado
 $telefone = preg_replace('/\D/', '', $_POST['telefone']  ?? ""); // salva só números
 $senha    = $_POST['senha']    ?? "";
+$confirmarSenha = $_POST['confirmarSenha'] ?? "";
 $codigoadm = trim($_POST['codigoadm'] ?? "");
 $tipo_cadastro = $_POST['tipo_cadastro'] ?? "padrao";
 
 $tipo = 0; // usuário padrão
 $erro = "";
 
-if (empty($nome) || empty($email) || empty($telefone) || empty($cpf) || empty($senha)) {
-    die("Preencha todos os campos!");
+// ─── Função para reexibir o formulário certo com o erro ─────────────────────
+function abortarComErro($erro, $tipo_cadastro) {
+    if ($tipo_cadastro === "adm") {
+        include "cadastro_adm.php";
+    } else {
+        include "cadastro.php";
+    }
+    exit;
+}
+
+if (empty($nome) || empty($email) || empty($telefone) || empty($cpf) || empty($senha) || empty($confirmarSenha)) {
+    $erro = "Preencha todos os campos!";
+    abortarComErro($erro, $tipo_cadastro);
+}
+
+// ─── Confirmação de senha ────────────────────────────────────────────────────
+if ($senha !== $confirmarSenha) {
+    $erro = "As senhas não coincidem!";
+    abortarComErro($erro, $tipo_cadastro);
+}
+
+// ─── Restrição de domínio de e-mail (somente IFFar) ─────────────────────────
+if (!preg_match('/^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$/i', $email)) {
+    $erro = "Use um e-mail institucional válido: @iffar.edu.br ou @iffarroupilha.edu.br";
+    abortarComErro($erro, $tipo_cadastro);
 }
 
 if ($_POST['tipo_cadastro'] === "adm") {
