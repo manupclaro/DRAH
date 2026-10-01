@@ -270,10 +270,6 @@ if ($result->num_rows > 0) {
     Alterar componente
 </button>
 
-<button class="btn btn-delete"
-   onclick="window.location.href='removercomp.php?id=<?php echo $row['IDCOMP']; ?>'">
-    Remover componente
-</button>
 
 </div>
 
