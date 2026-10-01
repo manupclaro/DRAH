@@ -34,9 +34,9 @@ if ($senha !== $confirmarSenha) {
     abortarComErro($erro, $tipo_cadastro);
 }
 
-// ─── Restrição de domínio de e-mail (somente IFFar) ─────────────────────────
-if (!preg_match('/^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$/i', $email)) {
-    $erro = "Use um e-mail institucional válido: @iffar.edu.br ou @iffarroupilha.edu.br";
+// ─── Restrição de domínio de e-mail (IFFar e subdomínios, ex: aluno.iffar.edu.br) ───
+if (!preg_match('/^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar|iffarroupilha)\.edu\.br$/i', $email)) {
+    $erro = "Use um e-mail institucional válido que termine com iffar.edu.br ou iffarroupilha.edu.br";
     abortarComErro($erro, $tipo_cadastro);
 }
 

@@ -145,8 +145,8 @@
                       });
                  </script>
         <label for="email">E-mail institucional</label>
-        <input type="email" id="email" name="email" placeholder="seunome@iffar.edu.br" pattern="^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$" title="Use um e-mail institucional: @iffar.edu.br ou @iffarroupilha.edu.br" required>
-        <small id="emailAviso" style="color:#b30000; display:none; font-size:13px;">O e-mail deve ser @iffar.edu.br ou @iffarroupilha.edu.br</small>
+        <input type="email" id="email" name="email" placeholder="seunome@iffar.edu.br" pattern="^[A-Za-z0-9._%+\-]+@([A-Za-z0-9\-]+\.)*(iffar|iffarroupilha)\.edu\.br$" title="Use um e-mail institucional que termine com iffar.edu.br ou iffarroupilha.edu.br" required>
+        <small id="emailAviso" style="color:#b30000; display:none; font-size:13px;">O e-mail deve terminar com iffar.edu.br ou iffarroupilha.edu.br</small>
 
         <label for="telefone">Telefone</label>
         <input type="tel" id="telefone" name="telefone" placeholder="55987654321" pattern="\d{10,11}" required>
@@ -165,12 +165,12 @@
             var senha = document.getElementById('senha');
             var confirmarSenha = document.getElementById('confirmarSenha');
             var senhaAviso = document.getElementById('senhaAviso');
-            var dominioRegex = /^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$/i;
+            var dominioRegex = /^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar|iffarroupilha)\.edu\.br$/i;
 
             function validarEmail() {
               var valido = dominioRegex.test(email.value);
               emailAviso.style.display = (email.value.length > 0 && !valido) ? 'block' : 'none';
-              email.setCustomValidity(valido || email.value.length === 0 ? '' : 'E-mail deve ser @iffar.edu.br ou @iffarroupilha.edu.br');
+              email.setCustomValidity(valido || email.value.length === 0 ? '' : 'O e-mail deve terminar com iffar.edu.br ou iffarroupilha.edu.br');
             }
 
             function validarSenhas() {
