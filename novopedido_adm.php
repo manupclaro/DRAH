@@ -175,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitarPedido'])) {
       $conexao->commit();
 
       /* Redireciona para evitar que F5 envie novamente o formulário. */
-      header("Location: pedidos.php?sucesso=1");
+      header("Location: pedidos_adm.php?sucesso=1");
       exit;
   } catch (Exception $e) {
       /* Se alguma coisa der errado, desfaz tudo. */
