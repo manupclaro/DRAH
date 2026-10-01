@@ -216,6 +216,27 @@ $result = $stmt->get_result();
         margin-top: 25px;
         margin-bottom: 25px;
     }
+    .checkout-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.horizontal-card:has(.checkout-button:disabled) {
+    opacity: 0.65;
+    border-color: #999;
+}
+
+.sem-estoque {
+    color: red;
+}
+
+.indisponivel {
+    color: red;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+
 </style>
 </head>
 <body>
@@ -253,7 +274,16 @@ $result = $stmt->get_result();
                     <?php while($componente = $result->fetch_assoc()) { ?>
 
                     <div class="product-card horizontal-card" data-id="<?= $componente['IDCOMP'] ?>">
-                        <input class="checkout-button" type="checkbox" name="carrinho[]" value="<?= $componente['IDCARRINHO'] ?>" form="pedidoForm" onchange="toggleSelection(this)">
+                       <input 
+    class="checkout-button" 
+    type="checkbox" 
+    name="carrinho[]" 
+    value="<?= $componente['IDCARRINHO'] ?>" 
+    form="pedidoForm"
+    onchange="toggleSelection(this)"
+    <?= $componente['QUANTIDADE'] <= 0 ? 'disabled' : '' ?>
+>
+
                         <div class="product-image-horizontal">
                             <img src="componentes/<?= $componente['IMAGEM'] ?>" alt="<?= $componente['NOME'] ?>">
                         </div>
@@ -262,7 +292,17 @@ $result = $stmt->get_result();
                             <span class="product-category"><?= $componente['CATEGORIA'] ?></span>
                             <div class="product-title"><?= $componente['NOME'] ?></div>
                             <div class="product-description"><?= $componente['DESCRICAO'] ?></div>
-                            <div>Estoque:<b><?= $componente['QUANTIDADE'] ?></b></div>
+                            <div class="estoque">
+    Estoque:
+    <b class="<?= $componente['QUANTIDADE'] <= 0 ? 'sem-estoque' : '' ?>">
+        <?= $componente['QUANTIDADE'] ?>
+    </b>
+
+    <?php if ($componente['QUANTIDADE'] <= 0) { ?>
+        <span class="indisponivel">Sem estoque</span>
+    <?php } ?>
+</div>
+
                         </div>
                         <!-- X -->
                         <button type="button" class="product-x" onclick="removerItem(<?= $componente['IDCARRINHO'] ?>)">X</button>
