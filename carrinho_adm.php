@@ -248,7 +248,7 @@ $result = $stmt->get_result();
             </div>
 
             <!-- GRID DE PRODUTOS -->
-            <form action="novopedido.php" method="POST" id="pedidoForm" onsubmit="return validarSelecao()">
+            <form action="novopedido_adm.php" method="POST" id="pedidoForm" onsubmit="return validarSelecao()">
                 <div class="products-grid">
                     <?php while($componente = $result->fetch_assoc()) { ?>
 
@@ -356,7 +356,7 @@ $result = $stmt->get_result();
 
             localStorage.setItem("itensPedido", JSON.stringify(itens));
 
-            window.location.href = "novopedido.php";
+            window.location.href = "novopedido_adm.php";
         }
 
         function buscar() {
