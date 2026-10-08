@@ -15,10 +15,10 @@ if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
 
 
 // ─── Configuração do banco ───────────────────────────────────────────────────
-$servername = "localhost";
-$username   = "root";
-$password   = "";
-$dbname     = "DRAH";
+$servername = "mysql-drah.alwaysdata.net";
+$username   = "drah";
+$password   = "Suportedrah";
+$dbname     = "drah";
 
 // Criar conexão
 $conn = new mysqli($servername, $username, $password, $dbname);
