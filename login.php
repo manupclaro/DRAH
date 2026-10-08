@@ -18,7 +18,7 @@ if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
 $servername = "mysql-drah.alwaysdata.net";
 $username   = "drah";
 $password   = "Suportedrah";
-$dbname     = "drah";
+$dbname     = "drah_drah";
 
 // Criar conexão
 $conn = new mysqli($servername, $username, $password, $dbname);
