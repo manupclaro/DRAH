@@ -248,6 +248,8 @@ if(mysqli_num_rows($result) > 0){
 
 <div class="pedido">
 
+    <!-- FOTO PADRÃO -->
+   
 
     <div class="info">
 
@@ -265,7 +267,7 @@ if(mysqli_num_rows($result) > 0){
 
         <button 
             class="btn"
-            onclick="location.href='analise_pedido.php?id=<?php echo $pedido['IDPEDIDO']; ?>'">
+            onclick="location.href='painel_analisepedido.php?id=<?php echo $pedido['IDPEDIDO']; ?>'">
             Analisar
         </button>
 
