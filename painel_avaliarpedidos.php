@@ -248,8 +248,6 @@ if(mysqli_num_rows($result) > 0){
 
 <div class="pedido">
 
-    <!-- FOTO PADRÃO -->
-    <img src="Componentes/fotoperfil.jpg" alt="Foto usuário"/>
 
     <div class="info">
 
