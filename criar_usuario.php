@@ -68,7 +68,7 @@ if ($_POST['tipo_cadastro'] === "adm") {
 
 $senha_encriptada = password_hash($senha, PASSWORD_DEFAULT);
 
-$stmt = $conexao->prepare("INSERT INTO usuario (nome, email, telefone, cpf, senha, tipousua) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt = $conexao->prepare("INSERT INTO USUARIO (nome, email, telefone, cpf, senha, tipousua) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("sssssi", $nome, $email, $telefone, $cpf, $senha_encriptada, $tipo);
 
 if ($stmt->execute()) {
@@ -76,7 +76,7 @@ if ($stmt->execute()) {
     exit;
 } else {
 
-    switch ($conexao->errno) {
+    switch ($conexao->erro) {
         case 1062:
             $erro = "CPF ou e-mail já cadastrado!";
             break;
