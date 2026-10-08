@@ -1,10 +1,10 @@
 <?php
-define('BD_USER', 'root');
+define('BD_USER', 'drah');
 define('BD_PASS', 'Suportedrah');
 define('BD_NAME', 'drah');
 
 $conexao = new mysqli(
-    'localhost',
+    'mysql-drah.alwaysdata.net',
     BD_USER,
     BD_PASS,
     BD_NAME
