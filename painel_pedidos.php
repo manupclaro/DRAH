@@ -1,13 +1,82 @@
 <?php
 include("config.php");
 
+/*
+ * ALTERAÇÃO DE STATUS
+ */
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+    $idPedido = intval($_POST["idpedido"]);
+    $acao = $_POST["acao"];
+
+    // Busca o status atual do pedido
+    $sqlStatus = "SELECT STATUSPEDIDO FROM PEDIDO WHERE IDPEDIDO = ?";
+    $stmtStatus = mysqli_prepare($conexao, $sqlStatus);
+    mysqli_stmt_bind_param($stmtStatus, "i", $idPedido);
+    mysqli_stmt_execute($stmtStatus);
+
+    $resultadoStatus = mysqli_stmt_get_result($stmtStatus);
+    $pedidoAtual = mysqli_fetch_assoc($resultadoStatus);
+
+    if ($pedidoAtual) {
+
+        $statusAtual = $pedidoAtual["STATUSPEDIDO"];
+
+        /*
+         * PEDIDO APROVADO -> RETIRADO
+         */
+        if ($acao == "retirar" && $statusAtual == "Pedido Aprovado") {
+
+            $sqlUpdate = "
+                UPDATE PEDIDO
+                SET STATUSPEDIDO = 'RETIRADO'
+                WHERE IDPEDIDO = ?
+            ";
+
+            $stmt = mysqli_prepare($conexao, $sqlUpdate);
+            mysqli_stmt_bind_param($stmt, "i", $idPedido);
+            mysqli_stmt_execute($stmt);
+        }
+
+        /*
+         * RETIRADO -> DEVOLVIDO
+         */
+        elseif ($acao == "devolver" && $statusAtual == "RETIRADO") {
+
+            $sqlUpdate = "
+                UPDATE PEDIDO
+                SET 
+                    STATUSPEDIDO = 'DEVOLVIDO',
+                    DATA_DEVOLUCAO = CURDATE()
+                WHERE IDPEDIDO = ?
+            ";
+
+            $stmt = mysqli_prepare($conexao, $sqlUpdate);
+            mysqli_stmt_bind_param($stmt, "i", $idPedido);
+            mysqli_stmt_execute($stmt);
+        }
+    }
+
+    // Volta para a própria página depois da alteração
+    header("Location: painel_pedidos.php");
+    exit;
+}
+
+
+/*
+ * BUSCA DOS PEDIDOS
+ *
+ * A ordenação considera:
+ * - Pedido Aprovado: data de retirada
+ * - Retirado: data prevista de devolução
+ */
 $sql = "
 SELECT 
     p.IDPEDIDO,
     p.STATUSPEDIDO,
     p.JUSTIFICATIVA,
     p.OBSERVACOES,
+    p.DATA_PEDIDO,
     p.DATA_RETIRADA,
     p.DATA_PREVIADEV,
     p.DATA_DEVOLUCAO,
@@ -31,11 +100,15 @@ INNER JOIN COMPONENTE c
 ON pc.IDCOMP = c.IDCOMP
 
 WHERE 
-    p.STATUSPEDIDO IN ('APROVADO', 'RETIRADO')
+    p.STATUSPEDIDO IN ('Pedido Aprovado', 'RETIRADO')
 
 GROUP BY p.IDPEDIDO
 
-ORDER BY p.DATA_PEDIDO ASC
+ORDER BY
+    CASE
+        WHEN p.STATUSPEDIDO = 'Pedido Aprovado' THEN p.DATA_RETIRADA
+        WHEN p.STATUSPEDIDO = 'RETIRADO' THEN p.DATA_PREVIADEV
+    END ASC
 ";
 
 $result = mysqli_query($conexao, $sql);
@@ -235,14 +308,14 @@ $result = mysqli_query($conexao, $sql);
 
 <!-- SUB NAV -->
 <div class="subnav">
-    <a href="painel_avaliarpedidos.php">✅ Avaliar Pedidos</a>
-    <a href="painel_historicopedidos.php">📜 Histórico de Pedidos</a>
-    <a href="painel_devolverpedidos.php">↩ Devolver Pedidos</a>
+    <a href="painel_avaliarpedidos.php">Avaliar Pedidos</a>
+    <a href="painel_historicopedidos.php">Histórico de Pedidos</a>
+    <a href="painel_devolverpedidos.php">Devolver Pedidos</a>
 </div>
 
 <!-- CONTEÚDO -->
 <div class="container">
-   <h2>📦 Pedidos em andamento</h2>
+   <h2> Pedidos em andamento</h2>
 
 <?php
 while($pedido = mysqli_fetch_assoc($result)){
@@ -253,7 +326,7 @@ while($pedido = mysqli_fetch_assoc($result)){
     // verifica se já retirou e está aguardando devolução
     if($pedido['STATUSPEDIDO'] == 'RETIRADO'){
         $statusClass = "proximo";
-        $statusTexto = "⚠ Aguardando devolução";
+        $statusTexto = "Aguardando devolução";
     }
 ?>
 
@@ -310,21 +383,50 @@ while($pedido = mysqli_fetch_assoc($result)){
         <?php echo $pedido['OBSERVACOES']; ?>
     </p>
 
-    <?php if($pedido['STATUSPEDIDO'] == 'APROVADO'){ ?>
+    <?php if($pedido['STATUSPEDIDO'] == 'Pedido Aprovado'){ ?>
 
-        <button>
-            ✅ Confirmar entrega do pedido
+    <form method="POST" style="margin-top: 15px;">
+        <input 
+            type="hidden" 
+            name="idpedido" 
+            value="<?php echo $pedido['IDPEDIDO']; ?>"
+        >
+
+        <input 
+            type="hidden" 
+            name="acao" 
+            value="retirar"
+        >
+
+        <button type="submit" class="btn-acao">
+            Marcar como retirado
         </button>
+    </form>
 
-    <?php } ?>
+<?php } ?>
 
-    <?php if($pedido['STATUSPEDIDO'] == 'RETIRADO'){ ?>
 
-        <button>
-            ♻ Confirmar devolução do pedido
+<?php if($pedido['STATUSPEDIDO'] == 'RETIRADO'){ ?>
+
+    <form method="POST" style="margin-top: 15px;">
+        <input 
+            type="hidden" 
+            name="idpedido" 
+            value="<?php echo $pedido['IDPEDIDO']; ?>"
+        >
+
+        <input 
+            type="hidden" 
+            name="acao" 
+            value="devolver"
+        >
+
+        <button type="submit" class="btn-acao">
+             Marcar como devolvido
         </button>
+    </form>
 
-    <?php } ?>
+<?php } ?>
 
 </div>
 
