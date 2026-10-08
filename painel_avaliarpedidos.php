@@ -163,7 +163,7 @@ $result = mysqli_query($conexao, $sql);
         color: #006d77;
     }
 
-    .btn.adm {
+    .btn {
     background: #00c2c7;
     color: #003F47;
     font-size: 16px;
@@ -176,7 +176,7 @@ $result = mysqli_query($conexao, $sql);
 
 }
 
-.btn.adm:hover {
+.btn:hover {
     background: #006d77;
     color: #e5ffff;
      border: 2px solid #006d77;
