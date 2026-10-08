@@ -76,7 +76,7 @@ if ($stmt->execute()) {
     exit;
 } else {
 
-    switch ($conexao->erro) {
+    switch ($conexao->errno) {
         case 1062:
             $erro = "CPF ou e-mail já cadastrado!";
             break;
