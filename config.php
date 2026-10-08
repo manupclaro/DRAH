@@ -1,7 +1,7 @@
 <?php
 define('BD_USER', 'drah');
 define('BD_PASS', 'Suportedrah');
-define('BD_NAME', 'drah');
+define('BD_NAME', 'drah_drah');
 
 $conexao = new mysqli(
     'mysql-drah.alwaysdata.net',
