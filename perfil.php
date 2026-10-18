@@ -8,8 +8,35 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
 
 include("config.php");
 
+// Oculta o CPF, mostrando só os últimos dígitos: ***.***.789-00
+function mascararCpf($cpf) {
+    $d = preg_replace('/\D/', '', (string)$cpf);
+    if (strlen($d) === 11) {
+        return '***.***.' . substr($d, 6, 3) . '-' . substr($d, 9, 2);
+    }
+    return '***.***.***-**';
+}
+
+// Formata telefone: (00) 00000-0000 ou (00) 0000-0000
+function formatarTelefone($tel) {
+    $d = preg_replace('/\D/', '', (string)$tel);
+    if (strlen($d) === 11) {
+        return '(' . substr($d, 0, 2) . ') ' . substr($d, 2, 5) . '-' . substr($d, 7, 4);
+    }
+    if (strlen($d) === 10) {
+        return '(' . substr($d, 0, 2) . ') ' . substr($d, 2, 4) . '-' . substr($d, 6, 4);
+    }
+    return (string)$tel;
+}
+
 // Busca os dados do usuário logado
-$id = $_SESSION['iduser'];
+$id = $_SESSION['usuario_id'] ?? $_SESSION['iduser'] ?? null;
+
+if ($id === null) {
+    header("Location: login.php");
+    exit();
+}
+
 $sql = "SELECT NOME, CPF, EMAIL, TELEFONE FROM USUARIO WHERE IDUSER = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $id);
@@ -18,6 +45,11 @@ $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 $stmt->close();
 
+if (!$usuario) {
+    header("Location: login.php");
+    exit();
+}
+
 // Processar atualização
 $sucesso = "";
 $erro = "";
@@ -25,11 +57,13 @@ $erro = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome     = trim($_POST['fullName'] ?? '');
     $email    = trim($_POST['email'] ?? '');
-    $telefone = trim($_POST['phone'] ?? '');
+    $telefone = preg_replace('/\D/', '', $_POST['phone'] ?? ''); // só números
     $senha    = $_POST['password'] ?? '';
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
+    } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
+        $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
     } else {
         if (!empty($senha)) {
             $hash = password_hash($senha, PASSWORD_BCRYPT);
@@ -63,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Perfil — DRAH</title>
   <style>
-  
+
     * {
       margin: 0;
       padding: 0;
@@ -80,61 +114,57 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     /* HEADER */
     header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 32px;
-        background: #ED5721;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: #ED5721;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .logo {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }  
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
     .logo img {
-        height: 50px;
-        width: auto;
-        display: block;
+      height: 50px;
+      width: auto;
+      display: block;
     }
 
     .menu-superior {
-        display: flex;
-        gap: 15px;
-        align-items: center;
+      display: flex;
+      gap: 15px;
+      align-items: center;
     }
 
     .menu-superior a {
-        background: #ff7f50;
-        color: white;
-        border: none;
-        padding: 10px 22px;
-        border-radius: 20px;
-        font-weight: 600;
-        text-decoration: none !important;
-        transition: background 0.2s;
+      background: #ff7f50;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-decoration: none !important;
+      transition: background 0.2s;
     }
 
-    .menu-superior a:hover {
-        background: #c94415;
-    }
-
+    .menu-superior a:hover,
     .menu-superior a.active {
-        background: white;
-        color: #ED5721;
+      background: #c94415;
     }
 
     /* CARD CENTRAL DO PERFIL */
     .wrap {
-      max-width: 920px;
+      max-width: 720px;
       margin: 0 auto;
       padding: 0 20px;
     }
@@ -142,53 +172,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .card {
       background: #ffffff;
       border-radius: 16px;
-      display: flex;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       overflow: hidden;
     }
 
-    /* COLUNA DA ESQUERDA (AVATAR/INFOS) */
-    .profile-box {
-      width: 270px;
-      background: #fff8f5;
-      padding: 40px 20px;
-      border-right: 1px solid #ffe0d1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .avatar-wrap {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      overflow: hidden;
-      margin-bottom: 18px;
-      border: 4px solid #ED5721;
-    }
-
-    .avatar {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .meta h3 {
-      font-size: 18px;
-      color: #222;
-      margin-bottom: 6px;
-    }
-
-    .meta p {
-      font-size: 13px;
-      color: #666;
-      word-break: break-all;
-    }
-
-    /* COLUNA DA DIREITA (FORMULÁRIO) */
     main {
-      flex: 1;
       padding: 35px 40px;
     }
 
@@ -228,10 +216,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       border-color: #ED5721;
     }
 
+    /* CPF não editável */
     input[readonly] {
       background-color: #f5f5f5;
       color: #888;
       cursor: not-allowed;
+    }
+
+    input[readonly]:focus {
+      border-color: #ddd;
     }
 
     /* MENSAGENS DE FEEDBACK */
@@ -309,38 +302,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       margin-bottom: 20px;
     }
 
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; gap: 0; }
+      main { padding: 25px 20px; }
+    }
+
   </style>
 </head>
 <body>
+
   <!-- HEADER -->
   <header>
+    <a href="index_padrao.php" class="back-arrow" title="Voltar"></a>
     <div class="logo">
-      <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+      <a href="index_padrao.php">
+        <img src="imagens/logo_branco.png" alt="Logo DRAH">
+      </a>
     </div>
     <nav class="menu-superior">
-      <a href="index_padrao.php">Início</a>
-      <a href="perfil.php" class="active">Perfil</a> 
-      <a href="pedidos.php">Meus Pedidos</a> 
-      <a href="carrinho.php">Carrinho</a> 
-      <a href="logout.php">Sair</a>  
+      <a href="perfil.php" class="active">Perfil</a>
+      <a href="pedidos.php">Meus Pedidos</a>
+      <a href="carrinho.php">Carrinho</a>
+      <a href="logout.php">Sair</a>
     </nav>
   </header>
 
   <div class="wrap">
     <section class="card">
-
-      <!-- Coluna esquerda -->
-      <aside class="profile-box">
-        <div class="avatar-wrap">
-          <img class="avatar" src="imagens/fotoperfil.jpg" alt="Foto de perfil">
-        </div>
-        <div class="meta">
-          <h3><?= htmlspecialchars($usuario['NOME']) ?></h3>
-          <p><?= htmlspecialchars($usuario['EMAIL']) ?></p>
-        </div>
-      </aside>
-
-      <!-- Coluna direita -->
       <main>
         <form method="POST" action="perfil.php">
 
@@ -364,9 +352,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             <div>
               <label for="cpf">CPF</label>
-              <!-- CPF não editável -->
+              <!-- CPF oculto (só últimos dígitos) e não editável -->
               <input id="cpf" type="text"
-                value="<?= htmlspecialchars($usuario['CPF']) ?>" readonly>
+                value="<?= htmlspecialchars(mascararCpf($usuario['CPF'])) ?>" readonly>
             </div>
           </div>
 
@@ -379,7 +367,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div>
               <label for="phone">Telefone</label>
               <input id="phone" name="phone" type="tel"
-                value="<?= htmlspecialchars($usuario['TELEFONE']) ?>">
+                placeholder="(00) 00000-0000" maxlength="15"
+                value="<?= htmlspecialchars(formatarTelefone($usuario['TELEFONE'])) ?>">
             </div>
           </div>
 
@@ -395,9 +384,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         </form>
       </main>
-
     </section>
-  <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
+
+  <script>
+    // Máscara de telefone: (00) 00000-0000 / (00) 0000-0000
+    const phone = document.getElementById('phone');
+
+    function mascaraTelefone(valor) {
+      const d = valor.replace(/\D/g, '').slice(0, 11);
+      if (d.length > 10) return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+      if (d.length > 6)  return d.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+      if (d.length > 2)  return d.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+      if (d.length > 0)  return '(' + d;
+      return '';
+    }
+
+    phone.addEventListener('input', () => {
+      phone.value = mascaraTelefone(phone.value);
+    });
+  </script>
 </body>
 </html>

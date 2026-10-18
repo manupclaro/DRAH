@@ -13,7 +13,34 @@ if ($_SESSION['tipo'] != 1) {
 
 include("config.php");
 
-$id = $_SESSION['usuario_id'];
+// Oculta o CPF, mostrando só os últimos dígitos: ***.***.789-00
+function mascararCpf($cpf) {
+    $d = preg_replace('/\D/', '', (string)$cpf);
+    if (strlen($d) === 11) {
+        return '***.***.' . substr($d, 6, 3) . '-' . substr($d, 9, 2);
+    }
+    return '***.***.***-**';
+}
+
+// Formata telefone: (00) 00000-0000 ou (00) 0000-0000
+function formatarTelefone($tel) {
+    $d = preg_replace('/\D/', '', (string)$tel);
+    if (strlen($d) === 11) {
+        return '(' . substr($d, 0, 2) . ') ' . substr($d, 2, 5) . '-' . substr($d, 7, 4);
+    }
+    if (strlen($d) === 10) {
+        return '(' . substr($d, 0, 2) . ') ' . substr($d, 2, 4) . '-' . substr($d, 6, 4);
+    }
+    return (string)$tel;
+}
+
+$id = $_SESSION['usuario_id'] ?? $_SESSION['iduser'] ?? null;
+
+if ($id === null) {
+    header("Location: login.php");
+    exit();
+}
+
 $sql = "SELECT NOME, CPF, EMAIL, TELEFONE FROM USUARIO WHERE IDUSER = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $id);
@@ -22,17 +49,24 @@ $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 $stmt->close();
 
+if (!$usuario) {
+    header("Location: login.php");
+    exit();
+}
+
 $sucesso = "";
 $erro = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome     = trim($_POST['fullName'] ?? '');
     $email    = trim($_POST['email'] ?? '');
-    $telefone = trim($_POST['phone'] ?? '');
+    $telefone = preg_replace('/\D/', '', $_POST['phone'] ?? ''); // só números
     $senha    = $_POST['password'] ?? '';
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
+    } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
+        $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
     } else {
         if (!empty($senha)) {
             $hash = password_hash($senha, PASSWORD_BCRYPT);
@@ -83,56 +117,85 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       padding-top: 80px;
     }
 
-    /* HEADER */
     header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 32px;
-        background: #006d77;
-        z-index: 1000;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: #006d77;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      z-index: 1000;
     }
 
     .logo {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }  
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-left: 50px;
+    }
 
     .logo img {
-        height: 50px;
-        width: auto;
-        display: block;
+      height: 60px;
+      width: auto;
+      display: block;
     }
 
     .menu-superior {
-        display: flex;
-        gap: 15px;
-        align-items: center;
+      display: flex;
+      gap: 15px;
+      align-items: center;
     }
 
     .menu-superior a {
-        background: #00c2c7;
-        color: white;
-        border: none;
-        padding: 10px 22px;
-        border-radius: 20px;
-        font-weight: 600;
-        text-decoration: none !important;
+      background: #00626d;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-decoration: none !important;
     }
 
     .menu-superior a:hover {
-        background: #006d77;
+      background: #004f57;
+      transform: translateY(-2px);
     }
 
     .menu-superior a.active {
-        background: white;
-        color: #006d77;
+      background: white;
+      color: #006d77;
+    }
+
+    .back-arrow {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .back-arrow:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .back-arrow::before {
+      content: '←';
+      font-size: 24px;
+      color: white;
+      font-weight: bold;
     }
 
     .wrap {
@@ -145,14 +208,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     .card {
       width: 100%;
-      max-width: 920px;
+      max-width: 720px;
       background: var(--card);
       border-radius: 16px;
       padding: 28px;
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 28px;
-      align-items: start;
     }
 
     .profile-box {
@@ -213,7 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-size: 15px;
     }
 
-    input[readonly] { color: #4a4a4a; }
+    input[readonly] { background: #f5f5f5; color: #888; cursor: not-allowed; }
 
     .actions { display: flex; gap: 12px; margin-top: 8px; }
 
@@ -256,41 +315,31 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     @media (max-width: 800px) {
-      .card { grid-template-columns: 1fr; max-width: 520px; }
-      .avatar-wrap { width: 150px; height: 150px; }
+      .card { max-width: 520px; }
       .grid-2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
+
   <header>
+    <a href="index_adm.php" class="back-arrow" title="Voltar"></a>
     <div class="logo">
-      <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+      <a href="index_adm.php">
+        <img src="imagens/logo_branco.png" alt="Logo DRAH">
+      </a>
     </div>
     <nav class="menu-superior">
-      <a href="index_adm.php">Início</a>
-      <a href="perfil_adm.php" class="active">Perfil</a> 
-      <a href="pedidos_adm.php">Meus Pedidos</a> 
+      <a href="perfil_adm.php" class="active">Perfil</a>
+      <a href="pedidos_adm.php">Seus Pedidos</a>
       <a href="carrinho_adm.php">Carrinho</a>
-      <a href="paineladm.html">Painel ADM</a>
-      <a href="logout.php">Logout</a>
+      <a href="painel_adm.php">Painel ADM</a>
+      <a href="logout.php">Sair</a>
     </nav>
   </header>
 
   <div class="wrap">
     <section class="card">
-
-      <aside class="profile-box">
-        <div class="avatar-wrap">
-          <img class="avatar" src="imagens/fotoperfil_adm.png" alt="Foto de perfil ADM">
-        </div>
-        <div class="meta">
-          <h3><?= htmlspecialchars($usuario['NOME']) ?></h3>
-          <p><?= htmlspecialchars($usuario['EMAIL']) ?></p>
-          <p><strong>Administrador</strong></p>
-        </div>
-      </aside>
 
       <main>
         <form method="POST" action="perfil_adm.php">
@@ -316,7 +365,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div>
               <label for="cpf">CPF</label>
               <input id="cpf" type="text"
-                value="<?= htmlspecialchars($usuario['CPF']) ?>" readonly>
+                value="<?= htmlspecialchars(mascararCpf($usuario['CPF'])) ?>" readonly>
             </div>
           </div>
 
@@ -329,7 +378,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div>
               <label for="phone">Telefone</label>
               <input id="phone" name="phone" type="tel"
-                value="<?= htmlspecialchars($usuario['TELEFONE']) ?>">
+                placeholder="(00) 00000-0000" maxlength="15"
+                value="<?= htmlspecialchars(formatarTelefone($usuario['TELEFONE'])) ?>">
             </div>
           </div>
 
@@ -348,6 +398,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </section>
   </div>
+
+  <script>
+    // Máscara de telefone: (00) 00000-0000 / (00) 0000-0000
+    const phone = document.getElementById('phone');
+
+    function mascaraTelefone(valor) {
+      const d = valor.replace(/\D/g, '').slice(0, 11);
+      if (d.length > 10) return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+      if (d.length > 6)  return d.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+      if (d.length > 2)  return d.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+      if (d.length > 0)  return '(' + d;
+      return '';
+    }
+
+    phone.addEventListener('input', () => {
+      phone.value = mascaraTelefone(phone.value);
+    });
+  </script>
 
 </body>
 </html>
