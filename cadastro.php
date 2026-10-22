@@ -135,21 +135,22 @@
         <label for="nome">Nome completo</label>
         <input type="text" id="nome" name="nome" required>
 
-      
         <label for="cpf">CPF</label>
         <input type="text" id="cpf" name="cpf" placeholder="Somente números" maxlength="11" pattern="\d{11}" title="Digite os 11 números do CPF, sem pontos ou traço" inputmode="numeric" required>
+        <small id="cpfAviso" style="color:#b30000; display:none; font-size:13px;">Digite um CPF válido</small>
 
-              <script>
-                  document.getElementById('cpf').addEventListener('input', function(e) {
-                     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
-                      });
-                 </script>
+          <script>
+            document.getElementById('cpf').addEventListener('input', function(e) {
+              e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
+            });
+          </script>
+
         <label for="email">E-mail institucional</label>
-        <input type="email" id="email" name="email" placeholder="seunome@iffar.edu.br" pattern="^[A-Za-z0-9._%+\-]+@([A-Za-z0-9\-]+\.)*(iffar|iffarroupilha)\.edu\.br$" title="Use um e-mail institucional que termine com iffar.edu.br ou iffarroupilha.edu.br" required>
-        <small id="emailAviso" style="color:#b30000; display:none; font-size:13px;">O e-mail deve terminar com iffar.edu.br ou iffarroupilha.edu.br</small>
+        <input type="email" id="email" name="email" placeholder="seunome@iffar.edu.br" pattern="^[A-Za-z0-9._%+-]+@(iffar\.edu\.br|iffarroupilha\.edu\.br)$" title="Use um e-mail institucional: @iffar.edu.br ou @iffarroupilha.edu.br" required>
+        <small id="emailAviso" style="color:#b30000; display:none; font-size:13px;">O e-mail deve ser @iffar.edu.br ou @iffarroupilha.edu.br</small>
 
         <label for="telefone">Telefone</label>
-        <input type="tel" id="telefone" name="telefone" placeholder="55987654321" pattern="\d{10,11}" required>
+        <input type="tel" id="telefone" name="telefone" placeholder="55987654321" pattern="\d{10,11}" maxlength="11" required>
 
         <label for="senha">Senha</label>
         <input type="password" id="senha" name="senha" minlength="6" pattern="(?=.*[A-Za-z])(?=.*\d).{6,}" title="A senha deve ter no mínimo 6 caracteres, incluindo letras e números" required>
@@ -160,17 +161,53 @@
 
         <script>
           (function() {
+            var cpf = document.getElementById('cpf');
+            var cpfAviso = document.getElementById('cpfAviso');
             var email = document.getElementById('email');
             var emailAviso = document.getElementById('emailAviso');
             var senha = document.getElementById('senha');
             var confirmarSenha = document.getElementById('confirmarSenha');
             var senhaAviso = document.getElementById('senhaAviso');
-            var dominioRegex = /^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar|iffarroupilha)\.edu\.br$/i;
+            var dominioRegex = /^[A-Za-z0-9._%+-]+@(?:[A-Za-z0-9-]+\.)*(iffar\.edu\.br|iffarroupilha\.edu\.br)$/i;
+            function validarCPF(cpf) {
+              const numeros = cpf.replace(/\D/g, '');
+
+              if (numeros.length !== 11 || /^(\d)\1{10}$/.test(numeros)) {
+                  return false;
+              }
+
+              for (let t = 9; t < 11; t++) {
+                  let soma = 0;
+                  for (let c = 0; c < t; c++) {
+                      soma += Number(numeros[c]) * ((t + 1) - c);
+                  }
+
+                  const digito = (soma * 10 % 11) % 10;
+                  if (Number(numeros[t]) !== digito) {
+                      return false;
+                  }
+              }
+              return true;
+            }
+            function validarCampoCPF() {
+              cpf.value = cpf.value.replace(/\D/g, '').slice(0, 11);
+              const preenchido = cpf.value.length > 0;
+              const valido = validarCPF(cpf.value);
+              cpfAviso.style.display = preenchido && !valido ? 'block' : 'none';
+              cpf.setCustomValidity(preenchido && !valido ? 'Digite um CPF válido.' : '');
+            }
 
             function validarEmail() {
-              var valido = dominioRegex.test(email.value);
-              emailAviso.style.display = (email.value.length > 0 && !valido) ? 'block' : 'none';
-              email.setCustomValidity(valido || email.value.length === 0 ? '' : 'O e-mail deve terminar com iffar.edu.br ou iffarroupilha.edu.br');
+              const valor = email.value.trim();
+              const valido = dominioRegex.test(valor);
+
+              if (valor.length > 0 && !valido) {
+                  emailAviso.style.display = 'block';
+                  email.setCustomValidity('Use um e-mail iffar.edu.br ou iffarroupilha.edu.br');
+              } else {
+                  emailAviso.style.display = 'none';
+                  email.setCustomValidity('');
+              }
             }
 
             function validarSenhas() {
@@ -179,9 +216,18 @@
               confirmarSenha.setCustomValidity(iguais ? '' : 'As senhas não coincidem');
             }
 
+            cpf.addEventListener('input', validarCampoCPF);
             email.addEventListener('input', validarEmail);
+            email.addEventListener('blur', validarEmail);
             senha.addEventListener('input', validarSenhas);
             confirmarSenha.addEventListener('input', validarSenhas);
+
+            // quando o usuário tenta enviar o formulário.
+            cpf.form.addEventListener('submit', function() {
+            validarCampoCPF();
+            validarEmail();
+            validarSenhas();
+            });
           })();
         </script>
 
@@ -258,6 +304,7 @@
       </div>
     <?php } ?>
     <p>Já tem uma conta? <a href="login.php"><b>Faça o Login</b></a></p>
+    <p>É administrador? <a href="cadastro_adm.php"><b>Cadastre-se como Administrador</b></a></p>
     <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
 </body>
