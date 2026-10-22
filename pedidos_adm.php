@@ -77,7 +77,7 @@ function formatarDataBR($data) {
         background: #b7edea;
         color: #333;
         min-height: 100vh;
-        padding-top: 80px;
+        padding-top: 100px;
     }
 
     /* HEADER */

@@ -6,18 +6,13 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     exit();
 }
 
-if ($_SESSION['tipo'] != 1) {
-    header("Location: index_padrao.php");
-    exit();
-}
-
 include("config.php");
 
 // Oculta o CPF, mostrando só os últimos dígitos: ***.***.789-00
 function mascararCpf($cpf) {
     $d = preg_replace('/\D/', '', (string)$cpf);
     if (strlen($d) === 11) {
-        return '***.***.' . substr($d, 6, 3) . '-' . substr($d, 9, 2);
+      return substr($d, 0, 1) . '**.***.***-*' . substr($d, -1);
     }
     return '***.***.***-**';
 }
@@ -34,6 +29,7 @@ function formatarTelefone($tel) {
     return (string)$tel;
 }
 
+// Busca os dados do usuário logado
 $id = $_SESSION['usuario_id'] ?? $_SESSION['iduser'] ?? null;
 
 if ($id === null) {
@@ -54,6 +50,7 @@ if (!$usuario) {
     exit();
 }
 
+// Processar atualização
 $sucesso = "";
 $erro = "";
 
@@ -65,6 +62,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
+    } elseif (!preg_match('/^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar|iffarroupilha)\.edu\.br$/i',$email)) {
+      $erro = "Use um e-mail institucional válido que termine com iffar.edu.br ou iffarroupilha.edu.br.";
     } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
         $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
     } else {
@@ -82,6 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($stmt->execute()) {
             $_SESSION['usuario'] = $nome;
             $sucesso = "Perfil atualizado com sucesso!";
+            // Recarrega os dados atualizados
             $usuario['NOME']     = $nome;
             $usuario['EMAIL']    = $email;
             $usuario['TELEFONE'] = $telefone;
@@ -96,25 +96,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Perfil ADM — DRAH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil | DRAH</title>
   <style>
-    :root {
-      --orange-700: #006d77;
-      --orange-500: #19a0aa;
-      --orange-200: #6bd5ff;
-      --card: #ffffff;
-      --muted: #6b6b6b;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #c1e0e0;
-      color: #333;
-      min-height: 100vh;
-      padding-top: 80px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #b7edea;
+        color: #333;
+        min-height: 100vh;
+        padding-top: 100px;
     }
 
     /* HEADER */
@@ -169,125 +165,146 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         color: #006d77;
     }
 
+    /* CARD CENTRAL DO PERFIL */
     .wrap {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 20px;
     }
 
     .card {
-      width: 100%;
-      max-width: 720px;
-      background: var(--card);
+      background: white;
       border-radius: 16px;
-      padding: 28px;
+      box-shadow: 0 8px 24px #00171A;
+      overflow: hidden;
     }
 
-    .profile-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 18px;
+    main {
+      padding: 35px 40px;
     }
 
-    .avatar-wrap {
-      position: relative;
-      width: 190px;
-      height: 190px;
+    .form-header h2 {
+      font-size: 20px;
+      color: #006d77;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #b7edea;
     }
-
-    .avatar {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 6px solid var(--orange-200);
-      background: linear-gradient(135deg, var(--orange-200), #fff);
-    }
-
-    .meta { margin-top: 14px; text-align: center; }
-    .meta h3 { margin: 6px 0 2px; font-size: 20px; }
-    .meta p { margin: 0; color: var(--muted); font-size: 14px; }
-
-    form { display: flex; flex-direction: column; gap: 12px; }
-
-    .form-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .form-header h2 { margin: 0; font-size: 18px; }
 
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
     }
 
     label {
       display: block;
       font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 6px;
+      font-weight: 600;
+      margin: 12px 0 5px;
+      color: #333;
     }
 
     input {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid #eee;
-      background: #fafafa;
-      font-size: 15px;
-    }
-
-    input[readonly] { background: #f5f5f5; color: #888; cursor: not-allowed; }
-
-    .actions { display: flex; gap: 12px; margin-top: 8px; }
-
-    .btn {
       padding: 10px 14px;
-      border-radius: 10px;
-      border: 0;
-      cursor: pointer;
-      font-weight: 600;
+      border: 1px solid white;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
     }
 
-    .btn-save { background: var(--orange-500); color: white; }
-    .btn-cancel {
-      background: transparent;
-      border: 1px solid #eee;
-      text-decoration: none;
-      color: #333;
-      display: inline-flex;
-      align-items: center;
+    input:focus {
+      border-color: #006d77;
     }
 
+    /* CPF não editável */
+    input[readonly] {
+      background-color: lightgray;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    input[readonly]:focus {
+      border-color: #999;
+    }
+
+    /* MENSAGENS DE FEEDBACK */
     .msg-sucesso {
-      background: #e6ffed;
-      border: 1px solid #4caf50;
-      color: #256029;
+      background: honeydew;
+      border: 1px solid green;
+      color: green;
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 14px;
+      margin-bottom: 16px;
       text-align: center;
     }
 
     .msg-erro {
-      background: #ffe5e5;
-      border: 1px solid #ff4d4d;
-      color: #b30000;
+      background: mistyrose;
+      border: 1px solid red;
+      color: red;
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 14px;
+      margin-bottom: 16px;
       text-align: center;
     }
 
-    @media (max-width: 800px) {
-      .card { max-width: 520px; }
-      .grid-2 { grid-template-columns: 1fr; }
+    /* AÇÕES E BOTÕES */
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-save {
+      background: #006d77;
+      color: white;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .btn-save:hover {
+      background: #00c2c7;
+    }
+
+    .btn-cancel {
+      background: lightgray;
+      color: #333;
+      padding: 11px 24px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+
+    .btn-cancel:hover {
+      background: #999;
+    }
+
+    /* RODAPÉ */
+    footer {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; gap: 0; }
+      main { padding: 25px 20px; }
     }
   </style>
 </head>
@@ -309,7 +326,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
   <div class="wrap">
     <section class="card">
-
       <main>
         <form method="POST" action="perfil_adm.php">
 
@@ -333,6 +349,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
             <div>
               <label for="cpf">CPF</label>
+              <!-- CPF oculto (só últimos dígitos) e não editável -->
               <input id="cpf" type="text"
                 value="<?= htmlspecialchars(mascararCpf($usuario['CPF'])) ?>" readonly>
             </div>
@@ -340,9 +357,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
           <div class="grid-2">
             <div>
-              <label for="email">Email</label>
+              <label for="email">E-mail institucional</label>
               <input id="email" name="email" type="email"
-                value="<?= htmlspecialchars($usuario['EMAIL']) ?>" required>
+                  value="<?= htmlspecialchars($usuario['EMAIL']) ?>"
+                  pattern="[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar\.edu\.br|iffarroupilha\.edu\.br)"
+                  title="Use um e-mail institucional terminado em iffar.edu.br ou iffarroupilha.edu.br" required>
+              <small id="emailAviso" style="color: red; display:none; font-size:13px;">
+                  O e-mail deve terminar em iffar.edu.br ou iffarroupilha.edu.br
+              </small>
+
             </div>
             <div>
               <label for="phone">Telefone</label>
@@ -364,8 +387,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         </form>
       </main>
-
     </section>
+    <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
   </div>
 
   <script>
@@ -385,6 +408,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       phone.value = mascaraTelefone(phone.value);
     });
   </script>
-
 </body>
 </html>

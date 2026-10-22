@@ -12,7 +12,7 @@ include("config.php");
 function mascararCpf($cpf) {
     $d = preg_replace('/\D/', '', (string)$cpf);
     if (strlen($d) === 11) {
-        return '***.***.' . substr($d, 6, 3) . '-' . substr($d, 9, 2);
+      return substr($d, 0, 1) . '**.***.***-*' . substr($d, -1);
     }
     return '***.***.***-**';
 }
@@ -62,6 +62,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
+    } elseif (!preg_match('/^[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar|iffarroupilha)\.edu\.br$/i',$email)) {
+      $erro = "Use um e-mail institucional válido que termine com iffar.edu.br ou iffarroupilha.edu.br.";
     } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
         $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
     } else {
@@ -94,10 +96,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Perfil — DRAH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil | DRAH</title>
   <style>
-
     * {
       margin: 0;
       padding: 0;
@@ -172,9 +173,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .card {
-      background: #ffffff;
+      background: white;
       border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 24px #1A0700;
       overflow: hidden;
     }
 
@@ -201,17 +202,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-size: 13px;
       font-weight: 600;
       margin: 12px 0 5px;
-      color: #444;
+      color: #333;
     }
 
     input {
       width: 100%;
       padding: 10px 14px;
-      border: 1px solid #ddd;
+      border: 1px solid white;
       border-radius: 8px;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
     }
 
     input:focus {
@@ -220,20 +220,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     /* CPF não editável */
     input[readonly] {
-      background-color: #f5f5f5;
-      color: #888;
+      background-color: lightgray;
+      color: #999;
       cursor: not-allowed;
     }
 
     input[readonly]:focus {
-      border-color: #ddd;
+      border-color: #999;
     }
 
     /* MENSAGENS DE FEEDBACK */
     .msg-sucesso {
-      background: #e6ffed;
-      border: 1px solid #4caf50;
-      color: #256029;
+      background: honeydew;
+      border: 1px solid green;
+      color: green;
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 14px;
@@ -242,9 +242,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .msg-erro {
-      background: #ffe5e5;
-      border: 1px solid #ff4d4d;
-      color: #b30000;
+      background: mistyrose;
+      border: 1px solid red;
+      color: red;
       border-radius: 8px;
       padding: 10px 14px;
       font-size: 14px;
@@ -272,15 +272,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       border-radius: 20px;
       font-weight: 600;
       font-size: 14px;
-      transition: background 0.2s;
     }
 
     .btn-save:hover {
-      background: #c94415;
+      background: #ff7f50;
     }
 
     .btn-cancel {
-      background: #e0e0e0;
+      background: lightgray;
       color: #333;
       padding: 11px 24px;
       border-radius: 20px;
@@ -288,17 +287,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-size: 14px;
       text-decoration: none !important;
       display: inline-block;
-      transition: background 0.2s;
     }
 
     .btn-cancel:hover {
-      background: #d0d0d0;
+      background: #999;
     }
 
     /* RODAPÉ */
     footer {
       font-size: 12px;
-      color: #666;
+      color: #333;
       text-align: center;
       margin-top: 30px;
       margin-bottom: 20px;
@@ -308,7 +306,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       .grid-2 { grid-template-columns: 1fr; gap: 0; }
       main { padding: 25px 20px; }
     }
-
   </style>
 </head>
 <body>
@@ -360,9 +357,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
           <div class="grid-2">
             <div>
-              <label for="email">Email</label>
+              <label for="email">E-mail institucional</label>
               <input id="email" name="email" type="email"
-                value="<?= htmlspecialchars($usuario['EMAIL']) ?>" required>
+                  value="<?= htmlspecialchars($usuario['EMAIL']) ?>"
+                  pattern="[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)*(iffar\.edu\.br|iffarroupilha\.edu\.br)"
+                  title="Use um e-mail institucional terminado em iffar.edu.br ou iffarroupilha.edu.br" required>
+              <small id="emailAviso" style="color: red; display:none; font-size:13px;">
+                  O e-mail deve terminar em iffar.edu.br ou iffarroupilha.edu.br
+              </small>
+
             </div>
             <div>
               <label for="phone">Telefone</label>

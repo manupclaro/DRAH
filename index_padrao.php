@@ -556,6 +556,5 @@ if ($result->num_rows > 0) {
 </div>
 </div>
 </div>
-  <footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
 </body>
 </html>
