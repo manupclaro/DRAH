@@ -364,66 +364,90 @@
     <div class="main-container">
         
         <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <h2>📦 Categorias</h2>
-            <ul class="category-list">
-    <li><a href="?categoria=Arduino">Arduino</a></li>
-    <li><a href="?categoria=Atuadores">Atuadores</a></li>
-    <li><a href="?categoria=Componentes eletrônicos">Componentes eletrônicos</a></li>
-    <li><a href="?categoria=ESP32">ESP32</a></li>
-    <li><a href="?categoria=Sensores">Sensores</a></li>
-    <li><a href="?categoria=Shields">Shields</a></li>
-    <li><a href="?categoria=Outros">Outros</a></li>
-</ul>
-        </aside>
+      <aside class="sidebar">
+    <h2>📦 Categorias</h2>
+    <ul class="category-list">
+        <li><a href="?categoria=">Todos</a></li>
+        <li><a href="?categoria=Arduino">Arduino</a></li>
+        <li><a href="?categoria=Atuadores">Atuadores</a></li>
+        <li><a href="?categoria=Componentes eletrônicos">Componentes eletrônicos</a></li>
+        <li><a href="?categoria=ESP32">ESP32</a></li>
+        <li><a href="?categoria=Sensores">Sensores</a></li>
+        <li><a href="?categoria=Shields">Shields</a></li>
+        <li><a href="?categoria=Outros">Outros</a></li>
+    </ul>
+</aside>
 
         <!-- CONTEÚDO -->
         <main class="content">
              <!-- PESQUISA -->
-   <div class="search-container">
+<div class="search-container">
     <form method="GET" class="search-box">
+
         <input 
             type="text" 
             name="busca" 
             placeholder="Buscar componentes..." 
             value="<?php echo isset($_GET['busca']) ? htmlspecialchars($_GET['busca']) : ''; ?>"
         >
+
+        <!-- MANTÉM A CATEGORIA SELECIONADA -->
+        <input 
+            type="hidden" 
+            name="categoria" 
+            value="<?php echo isset($_GET['categoria']) ? htmlspecialchars($_GET['categoria']) : ''; ?>"
+        >
+
         <button type="submit">Pesquisar</button>
     </form>
 </div>
-
   <!-- GRID -->
 <div class="comp-grid">
 
 <?php
 include("config.php");
 
+// RECEBE OS DADOS DA PESQUISA
 $busca = isset($_GET['busca']) ? $_GET['busca'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
 
-
-
-
-if (isset($_GET['busca'])) {
-    $busca = $_GET['busca'];
-}
+// CONSULTA AO BANCO DE DADOS
 $sql = "SELECT * FROM COMPONENTE WHERE 1=1";
 
+$parametros = [];
+$tipos = "";
+
+// FILTRO DE PESQUISA
 if (!empty($busca)) {
-    $sql .= " AND (NOME LIKE '%$busca%' OR DESCRICAO LIKE '%$busca%')";
+    $sql .= " AND (NOME LIKE ? OR DESCRICAO LIKE ?)";
+
+    $parametros[] = "%$busca%";
+    $parametros[] = "%$busca%";
+    $tipos .= "ss";
 }
 
+// FILTRO DE CATEGORIA
 if (!empty($categoria)) {
-    $sql .= " AND CATEGORIA = '$categoria'";
+    $sql .= " AND CATEGORIA = ?";
+
+    $parametros[] = $categoria;
+    $tipos .= "s";
 }
 
-$result = $conexao->query($sql);
+// PREPARA E EXECUTA A CONSULTA
+$stmt = $conexao->prepare($sql);
 
+if (!empty($parametros)) {
+    $stmt->bind_param($tipos, ...$parametros);
+}
 
+$stmt->execute();
+$result = $stmt->get_result();
+
+// EXIBE OS COMPONENTES
 if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
-
   <div class="comp-card horizontal-card">
     <!-- IMAGEM PADRONIZADA -->
     <div class="comp-image-horizontal">
@@ -457,6 +481,8 @@ if ($result->num_rows > 0) {
 } else {
     echo "<p>Nenhum componente encontrado.</p>";
 }
+
+$stmt->close();
 ?>
 </div>
 </div>
