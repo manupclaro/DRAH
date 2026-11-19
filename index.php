@@ -555,11 +555,19 @@ if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
 ?>
   <div class="comp-card horizontal-card">
-    <!-- IMAGEM PADRONIZADA -->
-    <div class="comp-image-horizontal">
-        <img src="componentes/<?php echo $row['IMAGEM']; ?>" 
-             alt="<?php echo $row['NOME']; ?>">
-    </div>
+  <div class="comp-image-horizontal">
+    <img 
+        src="componentes/<?php echo htmlspecialchars($row['IMAGEM']); ?>"
+        alt="<?php echo htmlspecialchars($row['NOME']); ?>"
+        class="imagem-produto"
+        onclick="abrirDetalhes(this)"
+
+        data-nome="<?php echo htmlspecialchars($row['NOME'], ENT_QUOTES); ?>"
+        data-categoria="<?php echo htmlspecialchars($row['CATEGORIA'], ENT_QUOTES); ?>"
+        data-descricao="<?php echo htmlspecialchars($row['DESCRICAO'], ENT_QUOTES); ?>"
+        data-estoque="<?php echo htmlspecialchars($row['QUANTIDADE'], ENT_QUOTES); ?>"
+    >
+</div>
 
     <!-- CONTEÚDO -->
     <div class="comp-content-horizontal">
@@ -607,7 +615,10 @@ $stmt->close();
         <div class="modal-informacoes">
 
             <h2 id="modalNome"></h2>
-
+ <p>
+                <strong>Estoque disponível:</strong>
+                <span id="modalEstoque"></span>
+            </p>
             <p>
                 <strong>Categoria:</strong>
                 <span id="modalCategoria"></span>
@@ -618,10 +629,7 @@ $stmt->close();
                 <span id="modalDescricao"></span>
             </p>
 
-            <p>
-                <strong>Estoque disponível:</strong>
-                <span id="modalEstoque"></span>
-            </p>
+           
 
         </div>
 
