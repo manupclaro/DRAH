@@ -1,5 +1,5 @@
 <?php
-include "listar_adm.php";
+require_once __DIR__ . "/config.php";
 ?>
 <!DOCTYPE html>
 
