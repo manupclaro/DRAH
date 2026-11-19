@@ -7,12 +7,14 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     exit();
 }
 
+$mensagem = "";
+
 if (isset($_POST['adicionar'])) {
 
     $idComp = $_POST['idcomp'];
     $idUser = $_SESSION['iduser'];
 
-    $sqlVerifica = "SELECT *FROM CARRINHO
+    $sqlVerifica = "SELECT * FROM CARRINHO
     WHERE IDUSER = ?
     AND IDCOMP = ?";
 
@@ -21,7 +23,9 @@ if (isset($_POST['adicionar'])) {
     $stmtVerifica->execute();
 
     $resultVerifica = $stmtVerifica->get_result();
+
     if ($resultVerifica->num_rows > 0) {
+
         $sql = "UPDATE CARRINHO
         SET QUANTIDADE = QUANTIDADE + 1
         WHERE IDUSER = ?
@@ -30,8 +34,9 @@ if (isset($_POST['adicionar'])) {
         $stmt = $conexao->prepare($sql);
         $stmt->bind_param("ii", $idUser, $idComp);
         $stmt->execute();
-    }
-    else {
+
+    } else {
+
         $sql = "INSERT INTO CARRINHO(IDUSER, IDCOMP, QUANTIDADE)
         VALUES (?, ?, 1)";
 
@@ -39,6 +44,8 @@ if (isset($_POST['adicionar'])) {
         $stmt->bind_param("ii", $idUser, $idComp);
         $stmt->execute();
     }
+
+    $mensagem = "Produto adicionado ao carrinho com sucesso!";
 }
 ?>
 <!DOCTYPE html>
@@ -62,6 +69,32 @@ if (isset($_POST['adicionar'])) {
         min-height: 100vh;
         padding-top: 80px;
     }
+
+.notificacao {
+    position: fixed;
+    top: 100px;
+    right: 30px;
+    background: #ED5721;
+    color: white;
+    padding: 18px 25px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 2000;
+    animation: aparecer 0.4s ease;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 
     /* HEADER */
     header {
@@ -441,6 +474,28 @@ if (isset($_POST['adicionar'])) {
 </style>
 </head>
 <body>
+     <?php if (!empty($mensagem)) { ?>
+
+    <div class="notificacao" id="notificacao">
+        ✓ <?php echo $mensagem; ?>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            let notificacao = document.getElementById("notificacao");
+
+            if (notificacao) {
+                notificacao.style.transition = "0.5s";
+                notificacao.style.opacity = "0";
+
+                setTimeout(function() {
+                    notificacao.remove();
+                }, 500);
+            }
+        }, 3000);
+    </script>
+
+<?php } ?>
     <!-- HEADER -->
     <header>
         <div class="logo">
