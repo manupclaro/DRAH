@@ -58,7 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome     = trim($_POST['fullName'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $telefone = preg_replace('/\D/', '', $_POST['phone'] ?? ''); // só números
-    $senha    = $_POST['password'] ?? '';
+    $senha          = $_POST['password'] ?? '';
+    $confirmarSenha = $_POST['confirmPassword'] ?? '';
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
@@ -66,6 +67,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $erro = "Use um e-mail institucional válido que termine com iffar.edu.br ou iffarroupilha.edu.br.";
     } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
         $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
+    } elseif (($senha !== '' || $confirmarSenha !== '') && $senha !== $confirmarSenha) {
+        $erro = "As senhas não coincidem.";
     } else {
         if (!empty($senha)) {
             $hash = password_hash($senha, PASSWORD_BCRYPT);
@@ -375,9 +378,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
           </div>
 
-          <div>
-            <label for="password">Nova senha (deixe em branco para não alterar)</label>
-            <input id="password" name="password" type="password" placeholder="••••••••">
+          <div class="grid-2">
+            <div>
+              <label for="password">Nova senha (deixe em branco para não alterar)</label>
+              <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <div>
+              <label for="confirmPassword">Confirmar nova senha</label>
+              <input id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+            </div>
           </div>
 
           <div class="actions">
