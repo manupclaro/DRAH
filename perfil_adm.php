@@ -6,7 +6,7 @@ if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     exit();
 }
 
-include("config.php");
+require_once __DIR__ . "/config.php";
 
 // Oculta o CPF, mostrando só os últimos dígitos: ***.***.789-00
 function mascararCpf($cpf) {
