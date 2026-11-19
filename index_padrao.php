@@ -723,6 +723,12 @@ if ($result->num_rows > 0) {
 </div>
 
     <!-- CONTEÚDO -->
+      
+        <div class="comp-meta">
+            <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
+        </div>
+    </div>
+    
     <div class="comp-content-horizontal">
         <span class="comp-category">
             <?php echo $row['CATEGORIA']; ?>
@@ -736,10 +742,6 @@ if ($result->num_rows > 0) {
             <?php echo $row['DESCRICAO']; ?>
         </div>
 
-        <div class="comp-meta">
-            <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
-        </div>
-    </div>
 
 </div>
 
