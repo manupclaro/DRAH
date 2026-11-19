@@ -1,5 +1,5 @@
 <?php
-include "config.php";
+require_once __DIR__ . "/config.php";
 
 $codigo = bin2hex(random_bytes(4)); 
 
