@@ -1,3 +1,73 @@
+<?php
+session_start();
+include("config.php");
+
+if ($conexao->connect_error) {
+    die("Erro: " . $conexao->connect_error);
+}
+
+$mensagem = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $idComp = intval($_POST['idcomp'] ?? 0);
+    $acao = $_POST['acao'] ?? '';
+
+    if ($acao === 'desativar') {
+
+        $justificativa = trim($_POST['justificativa'] ?? '');
+
+        if ($idComp > 0 && !empty($justificativa)) {
+
+            $sql = "UPDATE COMPONENTE
+                    SET STATUS = 'DESATIVADO',
+                        JUSTIFICATIVA = ?,
+                        DATA_DESATIVACAO = NOW()
+                    WHERE IDCOMP = ?";
+
+            $stmt = $conexao->prepare($sql);
+            $stmt->bind_param("si", $justificativa, $idComp);
+
+            if ($stmt->execute() && $stmt->affected_rows > 0) {
+                $_SESSION['mensagem'] = "Componente desativado com sucesso!";
+            } else {
+                $_SESSION['mensagem'] = "Não foi possível desativar o componente.";
+            }
+
+            $stmt->close();
+
+        } else {
+            $_SESSION['mensagem'] = "Informe uma justificativa.";
+        }
+
+    } elseif ($acao === 'reativar') {
+
+        if ($idComp > 0) {
+
+            $sql = "UPDATE COMPONENTE
+                    SET STATUS = 'ATIVO'
+                    WHERE IDCOMP = ?";
+
+            $stmt = $conexao->prepare($sql);
+            $stmt->bind_param("i", $idComp);
+
+            if ($stmt->execute() && $stmt->affected_rows > 0) {
+                $_SESSION['mensagem'] = "Componente reativado com sucesso!";
+            } else {
+                $_SESSION['mensagem'] = "Não foi possível reativar o componente.";
+            }
+
+            $stmt->close();
+        }
+    }
+
+    header("Location: painel_componentes.php");
+    exit();
+}
+
+$mensagem = $_SESSION['mensagem'] ?? '';
+unset($_SESSION['mensagem']);
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -186,104 +256,438 @@
         margin-top: 25px;
         margin-bottom: 25px;
     }
+
+    /* STATUS DO COMPONENTE */
+.status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.status-ativo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-desativado {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* BOTÃO DESATIVAR */
+.btn-delete {
+    background: #fff;
+    color: #b3261e;
+    border: 2px solid #b3261e;
+}
+
+.btn-delete:hover {
+    background: #b3261e;
+    color: white;
+}
+
+/* BOTÃO REATIVAR */
+.btn-reativar {
+    background: #006d77;
+    color: white;
+    border: 2px solid #006d77;
+}
+
+/* POPUP */
+.modal-desativar {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-box {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+}
+
+.modal-box h2 {
+    color: #006d77;
+    margin-bottom: 15px;
+}
+
+.modal-box textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 12px;
+    border: 2px solid #b7edea;
+    border-radius: 10px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.modal-botoes {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-cancelar {
+    background: white;
+    color: #333;
+    border: 2px solid #999;
+}
+
 </style>
 
-<?php
-require_once __DIR__ . "/config.php";
-
-if ($conexao->connect_error) {
-    die("Erro: " . $conexao->connect_error);
-}
-?>
 
 </head>
 
 <body>
-<!-- HEADER -->
-    <header>
-        <div class="logo">
-        <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
-        </div>
-        <nav class="menu-superior">
-            <a href="index_adm.php">Início</a>
-            <a href="painel_componentes.php" class="active">Componentes</a>
-            <a href="painel_historiccomp.php">Histórico</a>
-            <a href="paineladm.html">Painel ADM</a>
-            <a href="logout.php">Logout</a>
-        </nav>
-  </header>
 
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <a href="index_adm.php">
+            <img src="imagens/logo_branco.png" alt="DRAH">
+        </a>
+    </div>
+
+    <nav class="menu-superior">
+        <a href="index_adm.php">Início</a>
+        <a href="painel_componentes.php" class="active">Componentes</a>
+        <a href="painel_historiccomp.php">Histórico</a>
+        <a href="paineladm.html">Painel ADM</a>
+        <a href="logout.php">Logout</a>
+    </nav>
+</header>
+
+<!-- CONTAINER PRINCIPAL -->
 <div class="container">
 
-  <h2>Componentes Disponíveis</h2>
+    <!-- MENSAGEM DE RETORNO -->
+    <?php if (!empty($mensagem)) { ?>
 
-  <a href="painel_cadastrarcomp.php"
-     style="margin-top:15px; background:#006d77; color:white; padding:10px 22px; border-radius:30px; text-decoration:none;">
-    Criar novo componente
-  </a>
+        <div style="
+            background:#d4edda;
+            color:#155724;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:20px;
+            font-weight:bold;
+            width:100%;
+            max-width:900px;
+            text-align:center;
+        ">
+            <?php echo htmlspecialchars($mensagem); ?>
+        </div>
 
-  <div class="search-bar">
-    <form method="GET">
-      <input type="text" name="busca" placeholder="Pesquisar componentes...">
-    </form>
-  </div>
+    <?php } ?>
 
-  <div class="grid-quadrantes">
+    <h2>Componentes Disponíveis</h2>
 
-<?php
-$busca = $_GET['busca'] ?? '';
+    <!-- CADASTRAR COMPONENTE -->
+    <a href="painel_cadastrarcomp.php"
+       style="
+           margin-top:15px;
+           background:#006d77;
+           color:white;
+           padding:10px 22px;
+           border-radius:30px;
+           text-decoration:none;
+       ">
+        Criar novo componente
+    </a>
 
-$sql = "SELECT * FROM COMPONENTE WHERE 1=1";
+    <!-- PESQUISA -->
+    <div class="search-bar">
+        <form method="GET">
+            <input
+                type="text"
+                name="busca"
+                placeholder="Pesquisar componentes..."
+                value="<?php echo htmlspecialchars($_GET['busca'] ?? ''); ?>"
+            >
+        </form>
+    </div>
 
-if (!empty($busca)) {
-    $sql .= " AND (NOME LIKE '%$busca%' OR DESCRICAO LIKE '%$busca%' OR CATEGORIA LIKE '%$busca%')";
-}
+    <!-- GRID DE COMPONENTES -->
+    <div class="grid-quadrantes">
 
-$result = $conexao->query($sql);
+        <?php
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-?>
+        $busca = $_GET['busca'] ?? '';
 
-<div class="component-card">
+        $sql = "SELECT * FROM COMPONENTE WHERE 1=1";
 
-  <img src="componentes/<?php echo $row['IMAGEM']; ?>" alt="">
+        if (!empty($busca)) {
+            $sql .= " AND (NOME LIKE ? OR DESCRICAO LIKE ? OR CATEGORIA LIKE ?)";
+        }
 
-  <div class="component-title">
-    <?php echo $row['NOME']; ?>
-  </div>
+        $stmt = $conexao->prepare($sql);
 
-  <div class="component-qty">
-    Quantidade: <?php echo $row['QUANTIDADE']; ?>
-  </div>
+        if (!empty($busca)) {
+            $pesquisa = "%$busca%";
+            $stmt->bind_param("sss", $pesquisa, $pesquisa, $pesquisa);
+        }
 
-  <div class="component-desc">
-    <?php echo $row['DESCRICAO']; ?>
-  </div>
+        $stmt->execute();
 
-  <div style="font-size:12px; color:#666;">
-    Categoria: <?php echo $row['CATEGORIA']; ?>
-  </div>
+        $result = $stmt->get_result();
 
- <button class="btn"
-    onclick="window.location.href='painel_editarcomp.php?id=<?php echo $row['IDCOMP']; ?>'">
-    Alterar componente
-</button>
+        if ($result->num_rows > 0) {
 
+            while ($row = $result->fetch_assoc()) {
+
+                $status = $row['STATUS'] ?? 'ATIVO';
+
+        ?>
+
+        <!-- CARD DO COMPONENTE -->
+        <div class="component-card">
+
+            <!-- IMAGEM -->
+            <img
+                src="componentes/<?php echo htmlspecialchars($row['IMAGEM'] ?? ''); ?>"
+                alt="<?php echo htmlspecialchars($row['NOME'] ?? ''); ?>"
+            >
+
+            <!-- NOME -->
+            <div class="component-title">
+                <?php echo htmlspecialchars($row['NOME'] ?? ''); ?>
+            </div>
+
+            <!-- QUANTIDADE -->
+            <div class="component-qty">
+                Quantidade:
+                <?php echo (int)$row['QUANTIDADE']; ?>
+            </div>
+
+            <!-- DESCRIÇÃO -->
+            <div class="component-desc">
+                <?php echo htmlspecialchars($row['DESCRICAO'] ?? ''); ?>
+            </div>
+
+            <!-- CATEGORIA -->
+            <div style="font-size:12px; color:#666;">
+                Categoria:
+                <?php echo htmlspecialchars($row['CATEGORIA'] ?? ''); ?>
+            </div>
+
+            <!-- STATUS DO COMPONENTE -->
+            <?php if ($status === 'ATIVO') { ?>
+
+                <span class="status status-ativo">
+                    ● ATIVO
+                </span>
+
+            <?php } else { ?>
+
+                <span class="status status-desativado">
+                    ● DESATIVADO
+                </span>
+
+                <!-- JUSTIFICATIVA -->
+                <div style="font-size:13px; margin-top:10px;">
+                    <strong>Justificativa:</strong><br>
+
+                    <?php
+                    echo htmlspecialchars(
+                        $row['JUSTIFICATIVA'] ?? 'Não informada'
+                    );
+                    ?>
+                </div>
+
+                <!-- DATA -->
+                <div style="font-size:12px; color:#666; margin-top:5px;">
+                    Desativado em:
+
+                    <?php
+                    echo !empty($row['DATA_DESATIVACAO'])
+                        ? date('d/m/Y H:i', strtotime($row['DATA_DESATIVACAO']))
+                        : 'Não informado';
+                    ?>
+                </div>
+
+            <?php } ?>
+
+            <!-- BOTÃO EDITAR -->
+            <button
+                type="button"
+                class="btn"
+                onclick="window.location.href='painel_editarcomp.php?id=<?php echo (int)$row['IDCOMP']; ?>'">
+
+                Alterar componente
+
+            </button>
+
+            <!-- BOTÕES DE DESATIVAÇÃO -->
+            <?php if ($status === 'ATIVO') { ?>
+
+                <button
+                    type="button"
+                    class="btn btn-delete"
+                    onclick="abrirModal(<?php echo (int)$row['IDCOMP']; ?>)">
+
+                    Desativar componente
+
+                </button>
+
+            <?php } else { ?>
+
+                <!-- REATIVAR -->
+                <form method="POST">
+
+                    <input
+                        type="hidden"
+                        name="idcomp"
+                        value="<?php echo (int)$row['IDCOMP']; ?>"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="acao"
+                        value="reativar"
+                    >
+
+                    <button
+                        type="submit"
+                        class="btn btn-reativar">
+
+                        Reativar componente
+
+                    </button>
+
+                </form>
+
+            <?php } ?>
+
+        </div>
+
+        <?php
+
+            }
+
+        } else {
+
+            echo "<p>Nenhum componente encontrado.</p>";
+
+        }
+
+        $stmt->close();
+
+        ?>
+
+    </div>
 
 </div>
 
-<?php
+<!-- POPUP DE DESATIVAÇÃO -->
+<div class="modal-desativar" id="modalDesativar">
+
+    <div class="modal-box">
+
+        <h2>Desativar componente</h2>
+
+        <p style="margin-bottom:15px;">
+            Informe o motivo pelo qual deseja desativar este componente:
+        </p>
+
+        <form method="POST">
+
+            <!-- ID DO COMPONENTE -->
+            <input
+                type="hidden"
+                name="idcomp"
+                id="idCompModal"
+            >
+
+            <!-- AÇÃO -->
+            <input
+                type="hidden"
+                name="acao"
+                value="desativar"
+            >
+
+            <!-- JUSTIFICATIVA -->
+            <textarea
+                name="justificativa"
+                placeholder="Digite a justificativa..."
+                required
+                maxlength="255"
+            ></textarea>
+
+            <div class="modal-botoes">
+
+                <button
+                    type="submit"
+                    class="btn btn-delete">
+
+                    Confirmar desativação
+
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-cancelar"
+                    onclick="fecharModal()">
+
+                    Cancelar
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- RODAPÉ -->
+<footer>
+    Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware
+</footer>
+
+<!-- JAVASCRIPT -->
+<script>
+
+function abrirModal(id) {
+
+    document.getElementById("idCompModal").value = id;
+
+    document.getElementById("modalDesativar").style.display = "flex";
+
+}
+
+function fecharModal() {
+
+    document.getElementById("modalDesativar").style.display = "none";
+
+}
+
+// FECHAR CLICANDO FORA DO POPUP
+document.getElementById("modalDesativar").addEventListener("click", function(event) {
+
+    if (event.target === this) {
+        fecharModal();
     }
-} else {
-    echo "<p>Nenhum componente encontrado.</p>";
-}
-?>
 
-  </div>
+});
 
+// FECHAR COM ESC
+document.addEventListener("keydown", function(event) {
 
-<footer>Copyright © 2026 - 2MB | DRAH - Devolução e Reserva de Aparelhos de Hardware</footer>
-</div>
+    if (event.key === "Escape") {
+        fecharModal();
+    }
+
+});
+
+</script>
+
 </body>
 </html>
