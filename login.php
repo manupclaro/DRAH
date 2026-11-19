@@ -15,19 +15,9 @@ if (isset($_SESSION['logado']) && $_SESSION['logado'] === true) {
 
 
 // ─── Configuração do banco ───────────────────────────────────────────────────
-$servername = "mysql-drah.alwaysdata.net";
-$username   = "drah";
-$password   = "Suportedrah";
-$dbname     = "drah_drah";
+require_once __DIR__ . "/config.php";
 
-// Criar conexão
-$conn = new mysqli($servername, $username, $password, $dbname);
-$conn->set_charset("utf8mb4");
-
-// Verificar conexão
-if ($conn->connect_error) {
-    die("Erro na conexão: " . $conn->connect_error);
-}
+$conn = $conexao;
 
 $erro = "";
 
