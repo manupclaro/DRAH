@@ -355,6 +355,7 @@ if (isset($_POST['adicionar'])) {
         padding-top: 12px;
         border-top: 2px solid #ffb084;
         margin-bottom: 14px;
+        margin-top: 14px;
     }
 
     /* BOTÕES */
@@ -660,8 +661,6 @@ if (isset($_POST['adicionar'])) {
   <!-- GRID -->
 <div class="comp-grid">
 <?php
-include("config.php");
-
 // RECEBE OS DADOS DA PESQUISA
 $busca = isset($_GET['busca']) ? $_GET['busca'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
@@ -723,12 +722,6 @@ if ($result->num_rows > 0) {
 </div>
 
     <!-- CONTEÚDO -->
-      
-        <div class="comp-meta">
-            <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
-        </div>
-    </div>
-    
     <div class="comp-content-horizontal">
         <span class="comp-category">
             <?php echo $row['CATEGORIA']; ?>
@@ -738,11 +731,14 @@ if ($result->num_rows > 0) {
             <?php echo $row['NOME']; ?>
         </div>
 
-        <div class="comp-description">
-            <?php echo $row['DESCRICAO']; ?>
+        <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
+        
+        <div class="comp-meta">
+            <div class="comp-description">
+                <?php echo $row['DESCRICAO'];?>
+            </div>
         </div>
-
-
+    </div>
 </div>
 
 <?php
@@ -772,6 +768,10 @@ $stmt->close();
             <h2 id="modalNome"></h2>
 
             <p>
+                <strong>Estoque disponível:</strong>
+                <span id="modalEstoque"></span>
+            </p>
+            <p>
                 <strong>Categoria:</strong>
                 <span id="modalCategoria"></span>
             </p>
@@ -780,12 +780,6 @@ $stmt->close();
                 <strong>Descrição:</strong>
                 <span id="modalDescricao"></span>
             </p>
-
-            <p>
-                <strong>Estoque disponível:</strong>
-                <span id="modalEstoque"></span>
-            </p>
-
         </div>
 
     </div>
