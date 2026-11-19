@@ -37,7 +37,7 @@ if ($id === null) {
     exit();
 }
 
-$sql = "SELECT NOME, CPF, EMAIL, TELEFONE FROM USUARIO WHERE IDUSER = ?";
+$sql = "SELECT NOME, CPF, EMAIL, TELEFONE, SENHA FROM USUARIO WHERE IDUSER = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -58,8 +58,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome     = trim($_POST['fullName'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $telefone = preg_replace('/\D/', '', $_POST['phone'] ?? ''); // só números
+    $senhaAtual     = $_POST['currentPassword'] ?? '';
     $senha          = $_POST['password'] ?? '';
     $confirmarSenha = $_POST['confirmPassword'] ?? '';
+    $solicitouTrocaSenha = ($senhaAtual !== '' || $senha !== '' || $confirmarSenha !== '');
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
@@ -67,10 +69,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $erro = "Use um e-mail institucional válido que termine com iffar.edu.br ou iffarroupilha.edu.br.";
     } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
         $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
-    } elseif (($senha !== '' || $confirmarSenha !== '') && $senha !== $confirmarSenha) {
-        $erro = "As senhas não coincidem.";
+    } elseif ($solicitouTrocaSenha && ($senhaAtual === '' || $senha === '' || $confirmarSenha === '')) {
+        $erro = "Para alterar a senha, preencha a senha atual, a nova senha e a confirmação.";
+    } elseif ($solicitouTrocaSenha && !(
+        (str_starts_with($usuario['SENHA'], '$2y$') || str_starts_with($usuario['SENHA'], '$2a$'))
+            ? password_verify($senhaAtual, $usuario['SENHA'])
+            : (($senhaAtual === $usuario['SENHA']) || ($usuario['SENHA'] === md5($senhaAtual)))
+    )) {
+        $erro = "A senha atual está incorreta.";
+    } elseif ($solicitouTrocaSenha && strlen($senha) < 6) {
+        $erro = "A nova senha deve ter no mínimo 6 caracteres.";
+    } elseif ($solicitouTrocaSenha && !preg_match('/[A-Z]/', $senha)) {
+        $erro = "A nova senha deve conter pelo menos uma letra maiúscula.";
+    } elseif ($solicitouTrocaSenha && !preg_match('/[a-z]/', $senha)) {
+        $erro = "A nova senha deve conter pelo menos uma letra minúscula.";
+    } elseif ($solicitouTrocaSenha && !preg_match('/[0-9]/', $senha)) {
+        $erro = "A nova senha deve conter pelo menos um número.";
+    } elseif ($solicitouTrocaSenha && $senha !== $confirmarSenha) {
+        $erro = "A nova senha e a confirmação não coincidem.";
     } else {
-        if (!empty($senha)) {
+        if ($solicitouTrocaSenha) {
             $hash = password_hash($senha, PASSWORD_BCRYPT);
             $upd = "UPDATE USUARIO SET NOME=?, EMAIL=?, TELEFONE=?, SENHA=? WHERE IDUSER=?";
             $stmt = $conexao->prepare($upd);
@@ -88,6 +106,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $usuario['NOME']     = $nome;
             $usuario['EMAIL']    = $email;
             $usuario['TELEFONE'] = $telefone;
+            if ($solicitouTrocaSenha) {
+                $usuario['SENHA'] = $hash;
+            }
         } else {
             $erro = "Erro ao atualizar perfil.";
         }
@@ -380,13 +401,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
           <div class="grid-2">
             <div>
-              <label for="password">Nova senha (deixe em branco para não alterar)</label>
-              <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password">
+              <label for="currentPassword">Senha atual (necessária para alterar a senha)</label>
+              <input id="currentPassword" name="currentPassword" type="password" placeholder="Digite sua senha atual" autocomplete="current-password">
             </div>
             <div>
-              <label for="confirmPassword">Confirmar nova senha</label>
-              <input id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+              <label for="password">Nova senha</label>
+              <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password">
             </div>
+          </div>
+
+          <div>
+            <label for="confirmPassword">Confirmar nova senha</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+            <small style="display:block; margin-top:6px; color:#555; font-size:12px;">
+              A nova senha deve ter no mínimo 6 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.
+            </small>
           </div>
 
           <div class="actions">
