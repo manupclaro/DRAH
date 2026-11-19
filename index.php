@@ -405,7 +405,7 @@
 <div class="comp-grid">
 
 <?php
-include("config.php");
+require_once __DIR__ . "/config.php";
 
 // RECEBE OS DADOS DA PESQUISA
 $busca = isset($_GET['busca']) ? $_GET['busca'] : '';
