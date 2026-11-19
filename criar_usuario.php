@@ -1,5 +1,5 @@
 <?php
-include "config.php";
+require_once __DIR__ . "/config.php";
 
 $nome     = trim($_POST['nome']     ?? "");
 $email    = trim($_POST['email']    ?? "");
