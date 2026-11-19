@@ -37,7 +37,7 @@ if ($id === null) {
     exit();
 }
 
-$sql = "SELECT NOME, CPF, EMAIL, TELEFONE FROM USUARIO WHERE IDUSER = ?";
+$sql = "SELECT NOME, CPF, EMAIL, TELEFONE, SENHA FROM USUARIO WHERE IDUSER = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -58,7 +58,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nome     = trim($_POST['fullName'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $telefone = preg_replace('/\D/', '', $_POST['phone'] ?? ''); // só números
-    $senha    = $_POST['password'] ?? '';
+    $senhaAtual     = $_POST['currentPassword'] ?? '';
+    $senha          = $_POST['password'] ?? '';
+    $confirmarSenha = $_POST['confirmPassword'] ?? '';
+    $solicitouTrocaSenha = ($senhaAtual !== '' || $senha !== '' || $confirmarSenha !== '');
 
     if (empty($nome) || empty($email)) {
         $erro = "Nome e e-mail são obrigatórios.";
@@ -66,8 +69,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       $erro = "Use um e-mail institucional válido que termine com iffar.edu.br ou iffarroupilha.edu.br.";
     } elseif ($telefone !== '' && !in_array(strlen($telefone), [10, 11])) {
         $erro = "Telefone inválido. Use o formato (00) 00000-0000.";
+    } elseif ($solicitouTrocaSenha && ($senhaAtual === '' || $senha === '' || $confirmarSenha === '')) {
+        $erro = "Para alterar a senha, preencha a senha atual, a nova senha e a confirmação.";
+    } elseif ($solicitouTrocaSenha && !(
+        (str_starts_with($usuario['SENHA'], '$2y$') || str_starts_with($usuario['SENHA'], '$2a$'))
+            ? password_verify($senhaAtual, $usuario['SENHA'])
+            : (($senhaAtual === $usuario['SENHA']) || ($usuario['SENHA'] === md5($senhaAtual)))
+    )) {
+        $erro = "A senha atual está incorreta.";
+    } elseif ($solicitouTrocaSenha && strlen($senha) < 6) {
+        $erro = "A nova senha deve ter no mínimo 6 caracteres.";
+    } elseif ($solicitouTrocaSenha && !preg_match('/[A-Z]/', $senha)) {
+        $erro = "A nova senha deve conter pelo menos uma letra maiúscula.";
+    } elseif ($solicitouTrocaSenha && !preg_match('/[a-z]/', $senha)) {
+        $erro = "A nova senha deve conter pelo menos uma letra minúscula.";
+    } elseif ($solicitouTrocaSenha && !preg_match('/[0-9]/', $senha)) {
+        $erro = "A nova senha deve conter pelo menos um número.";
+    } elseif ($solicitouTrocaSenha && $senha !== $confirmarSenha) {
+        $erro = "A nova senha e a confirmação não coincidem.";
     } else {
-        if (!empty($senha)) {
+        if ($solicitouTrocaSenha) {
             $hash = password_hash($senha, PASSWORD_BCRYPT);
             $upd = "UPDATE USUARIO SET NOME=?, EMAIL=?, TELEFONE=?, SENHA=? WHERE IDUSER=?";
             $stmt = $conexao->prepare($upd);
@@ -85,6 +106,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $usuario['NOME']     = $nome;
             $usuario['EMAIL']    = $email;
             $usuario['TELEFONE'] = $telefone;
+            if ($solicitouTrocaSenha) {
+                $usuario['SENHA'] = $hash;
+            }
         } else {
             $erro = "Erro ao atualizar perfil.";
         }
@@ -106,11 +130,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #b7edea;
-        color: #333;
-        min-height: 100vh;
-        padding-top: 100px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffb084;
+      color: #333;
+      min-height: 100vh;
+      padding-top: 100px;
     }
 
     /* HEADER */
@@ -124,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         align-items: center;
         justify-content: space-between;
         padding: 0 32px;
-        background: #006d77;
+        background: #ED5721;
         z-index: 1000;
     }
 
@@ -147,7 +171,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .menu-superior a {
-        background: #00c2c7;
+        background: #ff7f50;
         color: white;
         border: none;
         padding: 10px 22px;
@@ -157,12 +181,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .menu-superior a:hover {
-        background: #006d77;
+        background: #ED5721;
     }
 
     .menu-superior a.active {
         background: white;
-        color: #006d77;
+        color: #ED5721;
     }
 
     /* CARD CENTRAL DO PERFIL */
@@ -175,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     .card {
       background: white;
       border-radius: 16px;
-      box-shadow: 0 8px 24px #00171A;
+      box-shadow: 0 8px 24px #1A0700;
       overflow: hidden;
     }
 
@@ -185,10 +209,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     .form-header h2 {
       font-size: 20px;
-      color: #006d77;
+      color: #ED5721;
       margin-bottom: 20px;
       padding-bottom: 8px;
-      border-bottom: 2px solid #b7edea;
+      border-bottom: 2px solid #ffb084;
     }
 
     .grid-2 {
@@ -215,7 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     input:focus {
-      border-color: #006d77;
+      border-color: #ED5721;
     }
 
     /* CPF não editável */
@@ -265,7 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .btn-save {
-      background: #006d77;
+      background: #ED5721;
       color: white;
       border: none;
       padding: 11px 24px;
@@ -275,7 +299,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     .btn-save:hover {
-      background: #00c2c7;
+      background: #ff7f50;
     }
 
     .btn-cancel {
@@ -296,7 +320,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     /* RODAPÉ */
     footer {
       font-size: 12px;
-      color: #666;
+      color: #333;
       text-align: center;
       margin-top: 30px;
       margin-bottom: 20px;
@@ -309,25 +333,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </style>
 </head>
 <body>
+
   <!-- HEADER -->
     <header>
         <div class="logo">
-        <a href="index_adm.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
+            <a href="index_padrao.php"><img src="imagens/logo_branco.png" alt="Devolução e Reserva de Aparelhos de Hardware"></a>
         </div>
         <nav class="menu-superior">
-            <a href="index_adm.php">Início</a>
-            <a href="perfil_adm.php" class="active">Perfil</a>
-            <a href="pedidos_adm.php">Meus Pedidos</a>
-            <a href="carrinho_adm.php">Carrinho</a>
-            <a href="paineladm.html">Painel ADM</a>
-            <a href="logout.php">Logout</a>
+            <a href="index_padrao.php">Início</a>
+            <a href="perfil.php" class="active">Perfil</a> 
+            <a href="pedidos.php">Meus Pedidos</a> 
+            <a href="carrinho.php">Carrinho</a> 
+            <a href="logout.php">Logout</a>  
         </nav>
     </header>
 
   <div class="wrap">
     <section class="card">
       <main>
-        <form method="POST" action="perfil_adm.php">
+        <form method="POST" action="perfil.php">
 
           <div class="form-header">
             <h2>Informações do perfil</h2>
@@ -375,14 +399,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
           </div>
 
+          <div class="grid-2">
+            <div>
+              <label for="currentPassword">Senha atual (necessária para alterar a senha)</label>
+              <input id="currentPassword" name="currentPassword" type="password" placeholder="Digite sua senha atual" autocomplete="current-password">
+            </div>
+            <div>
+              <label for="password">Nova senha</label>
+              <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password">
+            </div>
+          </div>
+
           <div>
-            <label for="password">Nova senha (deixe em branco para não alterar)</label>
-            <input id="password" name="password" type="password" placeholder="••••••••">
+            <label for="confirmPassword">Confirmar nova senha</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+            <small style="display:block; margin-top:6px; color:#555; font-size:12px;">
+              A nova senha deve ter no mínimo 6 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número.
+            </small>
           </div>
 
           <div class="actions">
             <button class="btn btn-save" type="submit">Salvar alterações</button>
-            <a href="index_adm.php" class="btn btn-cancel">Cancelar</a>
+            <a href="index_padrao.php" class="btn btn-cancel">Cancelar</a>
           </div>
 
         </form>
