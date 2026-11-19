@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("config.php");
+require_once __DIR__ . "/config.php";
 
 if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
     header("Location: login.php");
