@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . "/config.php";
+
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -366,6 +370,7 @@
         padding-top: 12px;
         border-top: 2px solid #ffb084;
         margin-bottom: 14px;
+        margin-top: 14px;
     }
 
     /* BOTÕES */
@@ -511,8 +516,6 @@
 <div class="comp-grid">
 
 <?php
-require_once __DIR__ . "/config.php";
-
 // RECEBE OS DADOS DA PESQUISA
 $busca = isset($_GET['busca']) ? $_GET['busca'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
@@ -579,15 +582,14 @@ if ($result->num_rows > 0) {
             <?php echo $row['NOME']; ?>
         </div>
 
-        <div class="comp-description">
-            <?php echo $row['DESCRICAO']; ?>
-        </div>
-
+        <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
+        
         <div class="comp-meta">
-            <div>Estoque: <b><?php echo $row['QUANTIDADE']; ?></b></div>
+            <div class="comp-description">
+                <?php echo $row['DESCRICAO'];?>
+            </div>
         </div>
     </div>
-
 </div>
 
 <?php
