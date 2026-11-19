@@ -20,6 +20,112 @@
         padding-top: 80px;
     }
 
+     /* IMAGEM CLICÁVEL */
+.imagem-produto {
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.imagem-produto:hover {
+    transform: scale(1.05);
+}
+
+/* FUNDO DO POPUP */
+.modal-detalhes {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    justify-content: center;
+    align-items: center;
+}
+
+/* CAIXA DO POPUP */
+.modal-conteudo {
+    background: white;
+    width: 90%;
+    max-width: 750px;
+    padding: 30px;
+    border-radius: 18px;
+    display: flex;
+    gap: 30px;
+    position: relative;
+    align-items: center;
+    animation: abrirModal 0.3s ease;
+}
+
+@keyframes abrirModal {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* IMAGEM GRANDE */
+.modal-imagem {
+    width: 280px;
+    height: 280px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #fff2e5;
+}
+
+/* INFORMAÇÕES */
+.modal-informacoes {
+    flex: 1;
+}
+
+.modal-informacoes h2 {
+    color: #ED5721;
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+.modal-informacoes p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #444;
+    line-height: 1.5;
+}
+
+/* BOTÃO FECHAR */
+.fechar-modal {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 30px;
+    color: #ED5721;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.fechar-modal:hover {
+    color: #ff7f50;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 650px) {
+    .modal-conteudo {
+        flex-direction: column;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-imagem {
+        width: 200px;
+        height: 200px;
+    }
+}
+
     /* HEADER */
     header {
         position: fixed;
