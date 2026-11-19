@@ -488,6 +488,86 @@ $stmt->close();
 </div>
 
 </div>
+<div class="modal-detalhes" id="modalDetalhes">
 
+    <div class="modal-conteudo">
+
+        <button class="fechar-modal" onclick="fecharDetalhes()">
+            &times;
+        </button>
+
+        <img src="" id="modalImagem" class="modal-imagem">
+
+        <div class="modal-informacoes">
+
+            <h2 id="modalNome"></h2>
+
+            <p>
+                <strong>Categoria:</strong>
+                <span id="modalCategoria"></span>
+            </p>
+
+            <p>
+                <strong>Descrição:</strong>
+                <span id="modalDescricao"></span>
+            </p>
+
+            <p>
+                <strong>Estoque disponível:</strong>
+                <span id="modalEstoque"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function abrirDetalhes(imagem) {
+
+    let modal = document.getElementById("modalDetalhes");
+
+    document.getElementById("modalImagem").src = imagem.src;
+
+    document.getElementById("modalNome").textContent =
+        imagem.dataset.nome;
+
+    document.getElementById("modalCategoria").textContent =
+        imagem.dataset.categoria;
+
+    document.getElementById("modalDescricao").textContent =
+        imagem.dataset.descricao;
+
+    document.getElementById("modalEstoque").textContent =
+        imagem.dataset.estoque;
+
+    modal.style.display = "flex";
+}
+
+function fecharDetalhes() {
+    document.getElementById("modalDetalhes").style.display = "none";
+}
+
+// Fecha ao clicar fora da janela
+document.getElementById("modalDetalhes").addEventListener("click", function(event) {
+
+    if (event.target === this) {
+        fecharDetalhes();
+    }
+
+});
+
+// Fecha apertando ESC
+document.addEventListener("keydown", function(event) {
+
+    if (event.key === "Escape") {
+        fecharDetalhes();
+    }
+
+});
+
+</script>
 </body>
 </html>
