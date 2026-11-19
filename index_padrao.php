@@ -471,6 +471,112 @@ if (isset($_POST['adicionar'])) {
         position: absolute;
         margin-left: 45%;
     }
+
+    /* IMAGEM CLICÁVEL */
+.imagem-produto {
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.imagem-produto:hover {
+    transform: scale(1.05);
+}
+
+/* FUNDO DO POPUP */
+.modal-detalhes {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    justify-content: center;
+    align-items: center;
+}
+
+/* CAIXA DO POPUP */
+.modal-conteudo {
+    background: white;
+    width: 90%;
+    max-width: 750px;
+    padding: 30px;
+    border-radius: 18px;
+    display: flex;
+    gap: 30px;
+    position: relative;
+    align-items: center;
+    animation: abrirModal 0.3s ease;
+}
+
+@keyframes abrirModal {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* IMAGEM GRANDE */
+.modal-imagem {
+    width: 280px;
+    height: 280px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #fff2e5;
+}
+
+/* INFORMAÇÕES */
+.modal-informacoes {
+    flex: 1;
+}
+
+.modal-informacoes h2 {
+    color: #ED5721;
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+.modal-informacoes p {
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #444;
+    line-height: 1.5;
+}
+
+/* BOTÃO FECHAR */
+.fechar-modal {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 30px;
+    color: #ED5721;
+    cursor: pointer;
+    border: none;
+    background: none;
+}
+
+.fechar-modal:hover {
+    color: #ff7f50;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 650px) {
+    .modal-conteudo {
+        flex-direction: column;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-imagem {
+        width: 200px;
+        height: 200px;
+    }
+}
 </style>
 </head>
 <body>
@@ -603,11 +709,18 @@ if ($result->num_rows > 0) {
         <button type="submit" name="adicionar" class="comp-badge">+</button>
     </form>
 
-    <!-- IMAGEM PADRONIZADA -->
-    <div class="comp-image-horizontal">
-        <img src="componentes/<?php echo $row['IMAGEM']; ?>" 
-             alt="<?php echo $row['NOME']; ?>">
-    </div>
+   <div class="comp-image-horizontal">
+    <img 
+        src="componentes/<?php echo htmlspecialchars($row['IMAGEM']); ?>"
+        alt="<?php echo htmlspecialchars($row['NOME']); ?>"
+        onclick="abrirDetalhes(this)"
+        class="imagem-produto"
+        data-nome="<?php echo htmlspecialchars($row['NOME'], ENT_QUOTES); ?>"
+        data-categoria="<?php echo htmlspecialchars($row['CATEGORIA'], ENT_QUOTES); ?>"
+        data-descricao="<?php echo htmlspecialchars($row['DESCRICAO'], ENT_QUOTES); ?>"
+        data-estoque="<?php echo htmlspecialchars($row['QUANTIDADE'], ENT_QUOTES); ?>"
+    >
+</div>
 
     <!-- CONTEÚDO -->
     <div class="comp-content-horizontal">
@@ -640,5 +753,89 @@ $stmt->close();
 </div>
 </div>
 </div>
+
+<!-- POPUP DE DETALHES -->
+<div class="modal-detalhes" id="modalDetalhes">
+
+    <div class="modal-conteudo">
+
+        <button class="fechar-modal" onclick="fecharDetalhes()">
+            &times;
+        </button>
+
+        <img src="" id="modalImagem" class="modal-imagem">
+
+        <div class="modal-informacoes">
+
+            <h2 id="modalNome"></h2>
+
+            <p>
+                <strong>Categoria:</strong>
+                <span id="modalCategoria"></span>
+            </p>
+
+            <p>
+                <strong>Descrição:</strong>
+                <span id="modalDescricao"></span>
+            </p>
+
+            <p>
+                <strong>Estoque disponível:</strong>
+                <span id="modalEstoque"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function abrirDetalhes(imagem) {
+
+    let modal = document.getElementById("modalDetalhes");
+
+    document.getElementById("modalImagem").src = imagem.src;
+
+    document.getElementById("modalNome").textContent =
+        imagem.dataset.nome;
+
+    document.getElementById("modalCategoria").textContent =
+        imagem.dataset.categoria;
+
+    document.getElementById("modalDescricao").textContent =
+        imagem.dataset.descricao;
+
+    document.getElementById("modalEstoque").textContent =
+        imagem.dataset.estoque;
+
+    modal.style.display = "flex";
+}
+
+function fecharDetalhes() {
+    document.getElementById("modalDetalhes").style.display = "none";
+}
+
+// Fecha ao clicar fora da janela
+document.getElementById("modalDetalhes").addEventListener("click", function(event) {
+
+    if (event.target === this) {
+        fecharDetalhes();
+    }
+
+});
+
+// Fecha apertando ESC
+document.addEventListener("keydown", function(event) {
+
+    if (event.key === "Escape") {
+        fecharDetalhes();
+    }
+
+});
+
+</script>
+
 </body>
 </html>
