@@ -1,9 +1,6 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "drah");
-
-if ($conn->connect_error) {
-    die("Erro: " . $conn->connect_error);
-}
+require_once __DIR__ . "/config.php";
+$conn = $conexao;
 
 $nome = $_POST['nome'] ?? '';
 $descricao = $_POST['descricao'] ?? '';
