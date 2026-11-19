@@ -19,7 +19,7 @@ $mail->addAddress($destinatario);
 
 $mail->Body = '
            <div style="font-family: Montserrat, Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; text-align: center;">
-                <img src="cid:logo_check" alt="Logo Check" style="max-width: 120px; margin-bottom: 20px;">
+                <img src="cid:logo_check" alt="Logo DRAH" style="max-width: 120px; margin-bottom: 20px;">
                 <h2 style="color: #333;">Código de Verificação</h2>
                 <img src="cid:logo_laranja.png" alt="logo_DRAH" style="max-width: 120px; margin-bottom: 20px;">
                 <h2 style="color: #333;">Código de Verificação de Conta</h2>
@@ -30,7 +30,6 @@ $mail->Body = '
                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                
                <footer style="font-size: 12px; color: #888;">
-                    <p><strong>Laboratório de Hardware</strong><br>Sistema CHECK de Gestão e Acesso</p>
                     <p><strong>Laboratório de Hardware</strong><br>Sistema de Devolução e Reserva de Aparelhos de Hardware</p>
                    <p>Contato: drah.support@gmail.com</p>
                </footer>
